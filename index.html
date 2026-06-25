@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>业绩分析仪表盘 · 截止2026年6月24日</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 28px 40px; color: #fff; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: 1px; }
+  .header .subtitle { font-size: 13px; color: #a0aec0; margin-top: 4px; }
+  .header .date-badge { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 6px 16px; font-size: 13px; color: #e2e8f0; }
+
+  /* Nav Tabs */
+  .nav { background: #fff; border-bottom: 2px solid #e8ecf0; padding: 0 40px; display: flex; gap: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100; }
+  .nav-tab { padding: 16px 24px; font-size: 14px; cursor: pointer; color: #64748b; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; white-space: nowrap; }
+  .nav-tab:hover { color: #3b82f6; }
+  .nav-tab.active { color: #3b82f6; border-bottom-color: #3b82f6; font-weight: 600; }
+
+  /* Sections */
+  .section { display: none; padding: 32px 40px; }
+  .section.active { display: block; }
+
+  /* KPI Cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
+  .kpi-card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border-left: 4px solid; }
+  .kpi-card.blue { border-color: #3b82f6; }
+  .kpi-card.green { border-color: #10b981; }
+  .kpi-card.purple { border-color: #8b5cf6; }
+  .kpi-card.orange { border-color: #f59e0b; }
+  .kpi-label { font-size: 13px; color: #64748b; margin-bottom: 8px; }
+  .kpi-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+  .kpi-sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+  /* Chart Cards */
+  .chart-card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 24px; }
+  .chart-title { font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  .chart-title::before { content: ''; display: inline-block; width: 4px; height: 18px; background: #3b82f6; border-radius: 2px; }
+  .chart-wrap { position: relative; }
+  .chart-wrap canvas { max-height: 360px; }
+
+  /* Two-col */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: #f8fafc; color: #64748b; font-weight: 600; padding: 12px 16px; text-align: left; border-bottom: 2px solid #e8ecf0; }
+  td { padding: 11px 16px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+  tr:hover td { background: #f8fafc; }
+  .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; font-size: 12px; font-weight: 700; }
+  .rank-1 { background: #fef3c7; color: #d97706; }
+  .rank-2 { background: #e2e8f0; color: #475569; }
+  .rank-3 { background: #fce7e7; color: #dc2626; }
+  .rank-n { background: #f1f5f9; color: #64748b; }
+  .amount { font-weight: 600; color: #0f766e; }
+
+  /* Store selector */
+  .store-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .store-btn { padding: 8px 18px; border-radius: 20px; border: 2px solid #e2e8f0; background: #fff; font-size: 13px; cursor: pointer; transition: all 0.2s; color: #475569; }
+  .store-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+  .store-btn.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
+  /* Mini bar */
+  .mini-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .mini-bar { height: 8px; border-radius: 4px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); min-width: 4px; }
+  .bar-label { font-size: 12px; color: #64748b; white-space: nowrap; }
+
+  /* Cat pills */
+  .cat-pill { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+  .cat-门诊 { background: #dbeafe; color: #1d4ed8; }
+  .cat-化验 { background: #dcfce7; color: #166534; }
+  .cat-住院 { background: #fce7f3; color: #9d174d; }
+  .cat-手术 { background: #fef3c7; color: #92400e; }
+  .cat-CTMRI { background: #ede9fe; color: #5b21b6; }
+  .cat-X光 { background: #fff7ed; color: #c2410c; }
+
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    .two-col, .three-col { grid-template-columns: 1fr; }
+    .donut-grid { grid-template-columns: repeat(2,1fr) !important; }
+    .section { padding: 20px 16px; }
+    .nav { padding: 0 16px; overflow-x: auto; }
+  }
+
+  /* Donut grid for store category breakdown */
+  .donut-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .donut-item { text-align: center; background: #f8fafc; border-radius: 14px; padding: 18px 12px 14px; }
+  .donut-item .donut-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .donut-item .donut-sub { font-size: 11px; color: #64748b; margin-bottom: 10px; }
+  .donut-item canvas { max-height: 170px; }
+
+  /* Password Gate */
+  .pw-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+  .pw-box { background: #fff; border-radius: 20px; padding: 48px 40px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 380px; max-width: 90vw; }
+  .pw-box h2 { font-size: 22px; color: #1e293b; margin-bottom: 8px; }
+  .pw-box p { font-size: 13px; color: #94a3b8; margin-bottom: 28px; }
+  .pw-box input { width: 100%; padding: 14px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; text-align: center; outline: none; letter-spacing: 4px; transition: border-color 0.2s; }
+  .pw-box input:focus { border-color: #3b82f6; }
+  .pw-box .pw-btn { margin-top: 16px; width: 100%; padding: 14px; background: #3b82f6; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  .pw-box .pw-btn:hover { background: #2563eb; }
+  .pw-error { color: #ef4444; font-size: 13px; margin-top: 12px; display: none; }
+</style>
+</head>
+<body>
+
+<!-- 密码门禁 -->
+<div class="pw-overlay" id="pwOverlay">
+  <div class="pw-box">
+    <h2>🔐 访问验证</h2>
+    <p>请输入访问密码以查看仪表盘</p>
+    <input type="password" id="pwInput" placeholder="请输入密码" autofocus>
+    <button class="pw-btn" id="pwBtn">验 证</button>
+    <div class="pw-error" id="pwError">密码错误，请重试</div>
+  </div>
+</div>
+
+<div id="mainContent" style="display:none;">
+
+<div class="header">
+  <div>
+    <h1>🏥 宠物医院业绩分析仪表盘</h1>
+    <div class="subtitle">数据范围：2026-06-01 至 2026-06-24 · 共 8 家门店</div>
+  </div>
+  <div class="date-badge">📅 截止 2026年6月24日</div>
+</div>
+
+<div class="nav">
+  <div class="nav-tab active" onclick="showTab('overview')">📊 总览</div>
+  <div class="nav-tab" onclick="showTab('store')">🏪 门店分析</div>
+  <div class="nav-tab" onclick="showTab('doctor')">👨‍⚕️ 开单人排名</div>
+  <div class="nav-tab" onclick="showTab('category')">📋 业绩分类</div>
+  <div class="nav-tab" onclick="showTab('animal')">🐾 动物种类</div>
+</div>
+
+<!-- ==================== TAB 1: 总览 ==================== -->
+<div id="tab-overview" class="section active">
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-label">总账单数</div>
+      <div class="kpi-value">24,629</div>
+      <div class="kpi-sub">条流水记录</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">总实收额</div>
+      <div class="kpi-value">¥244.9万</div>
+      <div class="kpi-sub">2,448,976.39 元</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-label">参与门店数</div>
+      <div class="kpi-value">8 家</div>
+      <div class="kpi-sub">店均 ¥30.6万</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-label">数据跨度</div>
+      <div class="kpi-value">24 天</div>
+      <div class="kpi-sub">6月1日 — 6月24日</div>
+    </div>
+  </div>
+
+  <!-- 门店总实收额排名（铺满） -->
+  <div class="chart-card">
+    <div class="chart-title">门店总实收额排名</div>
+    <div class="chart-wrap" style="height:420px;"><canvas id="storeRankBar"></canvas></div>
+  </div>
+
+  <!-- 8家分院各业绩分类收入占比（4x2圆环图） -->
+  <div class="chart-card">
+    <div class="chart-title">各分院业绩分类收入占比</div>
+    <div class="donut-grid" id="storeDonutGrid"></div>
+  </div>
+
+  <!-- 业绩达标率（8个圆环图） -->
+  <div class="chart-card">
+    <div class="chart-title">各门店业绩达标率（截止6.24）</div>
+    <div class="donut-grid" id="targetDonutGrid"></div>
+  </div>
+
+  <!-- 动物种类消费 TOP 8（铺满） -->
+  <div class="chart-card">
+    <div class="chart-title">动物种类消费金额 TOP 8</div>
+    <div class="chart-wrap" style="height:420px;"><canvas id="animalBar"></canvas></div>
+  </div>
+</div>
+
+<!-- ==================== TAB 2: 门店分析 ==================== -->
+<div id="tab-store" class="section">
+  <div class="chart-card">
+    <div class="chart-title">门店总实收额排名（含业绩分类明细）</div>
+    <div class="table-wrap">
+      <table id="storeRankTable">
+        <thead>
+          <tr><th>排名</th><th>门店</th><th>总实收额</th><th>账单数</th><th>门诊</th><th>化验</th><th>住院</th><th>手术</th><th>CT/MRI</th><th>X光/助扶</th></tr>
+        </thead>
+        <tbody id="storeRankBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">各门店业绩分类结构对比</div>
+    <div class="chart-wrap"><canvas id="storeCatStack" style="max-height:420px;"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">各门店业绩分类占比（雷达图）</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;" id="storeRadarGrid"></div>
+  </div>
+</div>
+
+<!-- ==================== TAB 3: 开单人排名 ==================== -->
+<div id="tab-doctor" class="section">
+  <div class="store-selector" id="docStoreSelector"></div>
+  <div class="chart-card">
+    <div class="chart-title" id="docChartTitle">开单人实收额排名</div>
+    <div class="chart-wrap"><canvas id="doctorBar" style="max-height:420px;"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">开单人明细表</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>排名</th><th>门店</th><th>开单人</th><th>总实收额</th><th>业绩目标</th><th>达标率</th></tr></thead>
+        <tbody id="doctorTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 4: 业绩分类 ==================== -->
+<div id="tab-category" class="section">
+  <div class="two-col">
+    <div class="chart-card">
+      <div class="chart-title">业绩分类收入排名</div>
+      <div class="chart-wrap"><canvas id="catBar"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">业绩分类占比</div>
+      <div class="chart-wrap"><canvas id="catDoughnut"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">各业绩分类在各门店的分布</div>
+    <div class="chart-wrap"><canvas id="catStoreBar" style="max-height:400px;"></canvas></div>
+  </div>
+</div>
+
+<!-- ==================== TAB 5: 动物种类 ==================== -->
+<div id="tab-animal" class="section">
+  <div class="two-col">
+    <div class="chart-card">
+      <div class="chart-title">动物种类消费排名 TOP 15</div>
+      <div class="chart-wrap"><canvas id="animalBarFull"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">动物种类消费占比</div>
+      <div class="chart-wrap"><canvas id="animalDoughnut"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">动物种类消费明细</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>排名</th><th>种类</th><th>总消费额</th><th>占比</th><th>可视化</th></tr></thead>
+        <tbody id="animalTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== DATA ======
+const DATA = {
+  total_bills: 24629,
+  total_amt: 2448976.39,
+  date_range: { start: '2026-03-02', end: '2026-06-24' },
+  store_rank: [
+    { 门店: '海珠重症', 总实收额: 621701.27, 排名: 1 },
+    { 门店: '天河肿瘤', 总实收额: 404201.97, 排名: 2 },
+    { 门店: '上海异宠', 总实收额: 351728.52, 排名: 3 },
+    { 门店: '顺德中心', 总实收额: 327738.77, 排名: 4 },
+    { 门店: '天河异宠', 总实收额: 300272.43, 排名: 5 },
+    { 门店: '成都异宠', 总实收额: 206523.47, 排名: 6 },
+    { 门店: '北京异宠', 总实收额: 133853.16, 排名: 7 },
+    { 门店: '海珠夜间', 总实收额: 102956.8, 排名: 8 }
+  ],
+  store_bills: [
+    { 门店: '上海异宠', 账单数: 2438 },
+    { 门店: '北京异宠', 账单数: 1041 },
+    { 门店: '天河异宠', 账单数: 2638 },
+    { 门店: '天河肿瘤', 账单数: 4516 },
+    { 门店: '成都异宠', 账单数: 2142 },
+    { 门店: '海珠夜间', 账单数: 834 },
+    { 门店: '海珠重症', 账单数: 7043 },
+    { 门店: '顺德中心', 账单数: 3977 }
+  ],
+  store_cat: [
+    { 门店: '上海异宠', 业绩分类: 'CT/MRI', 金额: 50095.01 },
+    { 门店: '上海异宠', 业绩分类: 'X光/助扶费', 金额: 39016.92 },
+    { 门店: '上海异宠', 业绩分类: '住院', 金额: 6625.0 },
+    { 门店: '上海异宠', 业绩分类: '化验', 金额: 75521.83 },
+    { 门店: '上海异宠', 业绩分类: '手术', 金额: 2610.0 },
+    { 门店: '上海异宠', 业绩分类: '门诊', 金额: 177859.76 },
+    { 门店: '北京异宠', 业绩分类: 'CT/MRI', 金额: 15800.0 },
+    { 门店: '北京异宠', 业绩分类: 'X光/助扶费', 金额: 17752.0 },
+    { 门店: '北京异宠', 业绩分类: '住院', 金额: 5080.0 },
+    { 门店: '北京异宠', 业绩分类: '化验', 金额: 20018.6 },
+    { 门店: '北京异宠', 业绩分类: '手术', 金额: 9127.0 },
+    { 门店: '北京异宠', 业绩分类: '门诊', 金额: 66075.56 },
+    { 门店: '天河异宠', 业绩分类: 'CT/MRI', 金额: 43992.34 },
+    { 门店: '天河异宠', 业绩分类: 'X光/助扶费', 金额: 24226.47 },
+    { 门店: '天河异宠', 业绩分类: '住院', 金额: 50647.0 },
+    { 门店: '天河异宠', 业绩分类: '化验', 金额: 67834.29 },
+    { 门店: '天河异宠', 业绩分类: '手术', 金额: 18349.09 },
+    { 门店: '天河异宠', 业绩分类: '门诊', 金额: 95223.24 },
+    { 门店: '天河肿瘤', 业绩分类: 'CT/MRI', 金额: 35053.14 },
+    { 门店: '天河肿瘤', 业绩分类: 'X光/助扶费', 金额: 7906.35 },
+    { 门店: '天河肿瘤', 业绩分类: '住院', 金额: 85585.67 },
+    { 门店: '天河肿瘤', 业绩分类: '化验', 金额: 78707.81 },
+    { 门店: '天河肿瘤', 业绩分类: '手术', 金额: 59864.81 },
+    { 门店: '天河肿瘤', 业绩分类: '门诊', 金额: 137084.19 },
+    { 门店: '成都异宠', 业绩分类: 'CT/MRI', 金额: 25112.54 },
+    { 门店: '成都异宠', 业绩分类: 'X光/助扶费', 金额: 24729.45 },
+    { 门店: '成都异宠', 业绩分类: '住院', 金额: 44298.91 },
+    { 门店: '成都异宠', 业绩分类: '化验', 金额: 39371.24 },
+    { 门店: '成都异宠', 业绩分类: '手术', 金额: 6915.29 },
+    { 门店: '成都异宠', 业绩分类: '门诊', 金额: 66096.04 },
+    { 门店: '海珠夜间', 业绩分类: 'CT/MRI', 金额: 8069.0 },
+    { 门店: '海珠夜间', 业绩分类: 'X光/助扶费', 金额: 4432.17 },
+    { 门店: '海珠夜间', 业绩分类: '住院', 金额: 1000.0 },
+    { 门店: '海珠夜间', 业绩分类: '化验', 金额: 27804.2 },
+    { 门店: '海珠夜间', 业绩分类: '手术', 金额: 672.0 },
+    { 门店: '海珠夜间', 业绩分类: '门诊', 金额: 60979.43 },
+    { 门店: '海珠重症', 业绩分类: 'CT/MRI', 金额: 61571.72 },
+    { 门店: '海珠重症', 业绩分类: 'X光/助扶费', 金额: 10160.32 },
+    { 门店: '海珠重症', 业绩分类: '住院', 金额: 203128.34 },
+    { 门店: '海珠重症', 业绩分类: '化验', 金额: 127381.15 },
+    { 门店: '海珠重症', 业绩分类: '手术', 金额: 98155.42 },
+    { 门店: '海珠重症', 业绩分类: '门诊', 金额: 121304.32 },
+    { 门店: '顺德中心', 业绩分类: 'CT/MRI', 金额: 39859.65 },
+    { 门店: '顺德中心', 业绩分类: 'X光/助扶费', 金额: 10363.15 },
+    { 门店: '顺德中心', 业绩分类: '住院', 金额: 51291.24 },
+    { 门店: '顺德中心', 业绩分类: '化验', 金额: 79457.79 },
+    { 门店: '顺德中心', 业绩分类: '手术', 金额: 16627.24 },
+    { 门店: '顺德中心', 业绩分类: '门诊', 金额: 130139.7 }
+  ],
+  doctor_store: [
+    { 门店: '上海异宠', 开单人: '陆越', 金额: 130691.33 },
+    { 门店: '上海异宠', 开单人: '翁治天', 金额: 106259.2 },
+    { 门店: '上海异宠', 开单人: '张弦', 金额: 90147.81 },
+    { 门店: '上海异宠', 开单人: '李淼鑫', 金额: 22982.0 },
+    { 门店: '上海异宠', 开单人: '0226上海前台回访', 金额: 1648.18 },
+    { 门店: '北京异宠', 开单人: '唐国梁', 金额: 67484.6 },
+    { 门店: '北京异宠', 开单人: '王妍博', 金额: 60048.84 },
+    { 门店: '北京异宠', 开单人: '吕新月', 金额: 5879.72 },
+    { 门店: '北京异宠', 开单人: '0223北京回访', 金额: 440.0 },
+    { 门店: '天河异宠', 开单人: '刘泽鑫', 金额: 99905.05 },
+    { 门店: '天河异宠', 开单人: '邹梓俊', 金额: 98598.38 },
+    { 门店: '天河异宠', 开单人: '谢冠晖', 金额: 68813.43 },
+    { 门店: '天河异宠', 开单人: '黄素荃', 金额: 20820.57 },
+    { 门店: '天河异宠', 开单人: '罗振宇', 金额: 11638.0 },
+    { 门店: '天河异宠', 开单人: '0218天河回访', 金额: 497.0 },
+    { 门店: '天河肿瘤', 开单人: '凌晓理', 金额: 117743.23 },
+    { 门店: '天河肿瘤', 开单人: '曹洁', 金额: 71095.19 },
+    { 门店: '天河肿瘤', 开单人: '黄洁明', 金额: 61404.88 },
+    { 门店: '天河肿瘤', 开单人: '杨秀碟', 金额: 53748.73 },
+    { 门店: '天河肿瘤', 开单人: '卢舒勉', 金额: 46108.5 },
+    { 门店: '天河肿瘤', 开单人: '卢恺滢', 金额: 35593.39 },
+    { 门店: '天河肿瘤', 开单人: '朱华君', 金额: 12545.99 },
+    { 门店: '天河肿瘤', 开单人: '0224肿瘤中医专科回访', 金额: 5762.06 },
+    { 门店: '天河肿瘤', 开单人: '郑惠邻', 金额: 200.0 },
+    { 门店: '成都异宠', 开单人: '帅敏', 金额: 86221.68 },
+    { 门店: '成都异宠', 开单人: '阎雪松', 金额: 70703.55 },
+    { 门店: '成都异宠', 开单人: '杨阳', 金额: 27357.58 },
+    { 门店: '成都异宠', 开单人: '王鑫', 金额: 21483.66 },
+    { 门店: '成都异宠', 开单人: '2025成都前台回访', 金额: 757.0 },
+    { 门店: '海珠夜间', 开单人: '叶志斌', 金额: 52522.5 },
+    { 门店: '海珠夜间', 开单人: '何骏贤', 金额: 49474.3 },
+    { 门店: '海珠夜间', 开单人: '0227海珠回访', 金额: 960.0 },
+    { 门店: '海珠重症', 开单人: '李泽贤', 金额: 144804.94 },
+    { 门店: '海珠重症', 开单人: '林倩华', 金额: 103612.72 },
+    { 门店: '海珠重症', 开单人: '张飏', 金额: 86755.86 },
+    { 门店: '海珠重症', 开单人: '董继凤', 金额: 79630.11 },
+    { 门店: '海珠重症', 开单人: '朱自洲', 金额: 66447.5 },
+    { 门店: '海珠重症', 开单人: '何家杰', 金额: 52413.2 },
+    { 门店: '海珠重症', 开单人: '黄妙容', 金额: 42892.49 },
+    { 门店: '海珠重症', 开单人: '0227海珠回访', 金额: 27941.79 },
+    { 门店: '海珠重症', 开单人: '张 飏', 金额: 7569.0 },
+    { 门店: '海珠重症', 开单人: '朱华君', 金额: 7437.66 },
+    { 门店: '海珠重症', 开单人: '林志轩', 金额: 952.0 },
+    { 门店: '海珠重症', 开单人: '阳婷', 金额: 739.0 },
+    { 门店: '海珠重症', 开单人: '蔡晓璇', 金额: 505.0 },
+    { 门店: '海珠重症', 开单人: 'Charline陈春玲', 金额: 0.0 },
+    { 门店: '顺德中心', 开单人: '陈佩玲', 金额: 73965.84 },
+    { 门店: '顺德中心', 开单人: '张迪雄', 金额: 68244.25 },
+    { 门店: '顺德中心', 开单人: '朱华君', 金额: 65729.98 },
+    { 门店: '顺德中心', 开单人: '何慧妍', 金额: 57123.9 },
+    { 门店: '顺德中心', 开单人: '杨沁颖', 金额: 51189.0 },
+    { 门店: '顺德中心', 开单人: '0219顺德回访', 金额: 11485.8 }
+  ],
+  cat_amt: [
+    { 业绩分类: '门诊', 金额: 854762.24 },
+    { 业绩分类: '化验', 金额: 516096.91 },
+    { 业绩分类: '住院', 金额: 447656.16 },
+    { 业绩分类: 'CT/MRI', 金额: 279553.4 },
+    { 业绩分类: '手术', 金额: 212320.85 },
+    { 业绩分类: 'X光/助扶费', 金额: 138586.83 }
+  ],
+  animal_amt: [
+    { 种类: '犬', 金额: 762343.82 },
+    { 种类: '猫', 金额: 692688.69 },
+    { 种类: '鸟', 金额: 396112.46 },
+    { 种类: '兔', 金额: 217654.26 },
+    { 种类: '龟', 金额: 143617.1 },
+    { 种类: '豚鼠', 金额: 39280.0 },
+    { 种类: '龙猫', 金额: 33160.06 },
+    { 种类: '仓鼠', 金额: 23884.0 },
+    { 种类: '蜥蜴', 金额: 19598.0 },
+    { 种类: '花枝鼠', 金额: 19576.8 },
+    { 种类: '雄貂', 金额: 18732.4 },
+    { 种类: '其他', 金额: 16565.0 },
+    { 种类: '鸭', 金额: 10672.0 },
+    { 种类: '野生动物', 金额: 10615.0 },
+    { 种类: '蜜袋鼯', 金额: 10420.0 }
+  ]
+};
+
+// ====== COLORS ======
+const STORE_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#ec4899'];
+// Store targets (monthly in 万元, converted to yuan for comparison with cumulative data)
+const STORE_TARGETS = {
+  '北京异宠': 250000, '成都异宠': 280000, '天河异宠': 430000,
+  '上海异宠': 430000, '海珠重症': 1080000, '海珠夜间': 180000,
+  '顺德中心': 530000, '天河肿瘤': 650000
+};
+const DOCTOR_TARGETS = {
+  '唐国梁': 120000, '王妍博': 90000, '吕新月': 40000, '帅敏': 120000,
+  '阎雪松': 110000, '杨阳': 30000, '王鑫': 20000, '翁治天': 129000,
+  '陆越': 150500, '张弦': 116100, '李淼鑫': 34400, '黄妙容': 140000,
+  '李泽贤': 200000, '张飏': 160000, '何家杰': 160000, '林倩华': 160000,
+  '谢冠晖': 60000, '董继凤': 80000, '朱自洲': 80000, '叶志斌': 90000,
+  '何骏贤': 90000, '何慧妍': 92500, '张迪雄': 118500, '陈佩玲': 118500,
+  '杨沁颖': 108000, '朱华君': 92500, '凌晓理': 170000, '黄洁明': 160000,
+  '曹洁': 130000, '杨秀碟': 80000, '卢舒勉': 55000, '卢恺滢': 55000,
+  '刘泽鑫': 140000, '邹梓俊': 140000, '罗振宇': 30000, '黄素荃': 60000
+};
+const CAT_COLORS = { '门诊':'#3b82f6','化验':'#10b981','住院':'#ec4899','手术':'#f59e0b','CT/MRI':'#8b5cf6','X光/助扶费':'#f97316' };
+const ANIMAL_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#ec4899','#84cc16','#14b8a6','#a855f7','#fb923c','#22d3ee','#fbbf24','#e879f9'];
+
+// ====== Custom Plugin: Doughnut Percentage Labels ======
+const doughnutPercentPlugin = {
+  id: 'doughnutPercent',
+  afterDatasetsDraw(chart) {
+    const meta = chart.getDatasetMeta(0);
+    if (!meta || !meta.data) return;
+    const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+    if (total === 0) return;
+    const ctx = chart.ctx;
+    meta.data.forEach((arc, i) => {
+      const val = chart.data.datasets[0].data[i];
+      const pct = val / total * 100;
+      if (pct < 4) return;
+      const angle = (arc.startAngle + arc.endAngle) / 2;
+      const r = arc.outerRadius * 0.72;
+      const x = arc.x + Math.cos(angle) * r;
+      const y = arc.y + Math.sin(angle) * r;
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.35)';
+      ctx.shadowBlur = 2;
+      ctx.fillText(pct.toFixed(0) + '%', x, y);
+      ctx.restore();
+    });
+  }
+};
+Chart.register(doughnutPercentPlugin);
+
+const fmt = (n) => '¥' + Number(n).toLocaleString('zh-CN', {maximumFractionDigits:0});
+const fmtW = (n) => '¥' + (n/10000).toFixed(1) + '万';
+
+// ====== TAB SWITCH ======
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ====== HELPERS ======
+function getStoreCatMap() {
+  const map = {};
+  DATA.store_cat.forEach(r => {
+    if (!map[r.门店]) map[r.门店] = {};
+    map[r.门店][r.业绩分类] = r.金额;
+  });
+  return map;
+}
+function getStoreBillsMap() {
+  const map = {};
+  DATA.store_bills.forEach(r => { map[r.门店] = r.账单数; });
+  return map;
+}
+
+// ====== CHART 1: Store Rank Bar (full width) ======
+(function() {
+  const stores = DATA.store_rank.map(r => r.门店);
+  const amts = DATA.store_rank.map(r => r.总实收额);
+  new Chart(document.getElementById('storeRankBar'), {
+    type: 'bar',
+    data: {
+      labels: stores,
+      datasets: [{ data: amts, backgroundColor: STORE_COLORS, borderRadius: 8, borderSkipped: false, barThickness: 36 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.x) } },
+        datalabels: { display: false }
+      },
+      scales: {
+        x: { ticks: { callback: v => fmtW(v), font: { size: 12 } }, grid: { color: '#f1f5f9' } },
+        y: { ticks: { font: { size: 13, weight: '600' }, color: '#334155' }, grid: { display: false } }
+      }
+    }
+  });
+})();
+
+// ====== CHART 2: 8 Store Donut Charts ======
+(function() {
+  const catMap = getStoreCatMap();
+  const cats = ['门诊','化验','住院','手术','CT/MRI','X光/助扶费'];
+  const grid = document.getElementById('storeDonutGrid');
+  DATA.store_rank.forEach((row, storeIdx) => {
+    const sc = catMap[row.门店] || {};
+    const total = Object.values(sc).reduce((a,b)=>a+b,0);
+    // Build donut item
+    const item = document.createElement('div');
+    item.className = 'donut-item';
+    const canvas = document.createElement('canvas');
+    canvas.id = 'donut-' + storeIdx;
+    item.innerHTML = `<div class="donut-title">${row.门店}</div><div class="donut-sub">总实收 ${fmtW(total)} · 排名第${row.排名}</div>`;
+    item.appendChild(canvas);
+    grid.appendChild(item);
+    // Chart
+    const catData = cats.map(c => sc[c] || 0);
+    const catLabels = cats.map((c,i) => c + ' ' + (total > 0 ? (catData[i]/total*100).toFixed(1) : 0) + '%');
+    new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: catLabels,
+        datasets: [{ data: catData, backgroundColor: Object.values(CAT_COLORS), borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true, cutout: '50%',
+        plugins: { legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ctx.label.split(' ')[0] + ': ' + fmt(ctx.parsed) } } }
+      }
+    });
+  });
+  // Legend
+  const legendDiv = document.createElement('div');
+  legendDiv.style.cssText = 'grid-column:1/-1;display:flex;justify-content:center;flex-wrap:wrap;gap:16px;padding-top:8px;';
+  cats.forEach((cat, i) => {
+    legendDiv.innerHTML += `<span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#475569;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${Object.values(CAT_COLORS)[i]};"></span>${cat}</span>`;
+  });
+  grid.appendChild(legendDiv);
+})();
+
+// ====== CHART 3: Target Achievement Donut Charts ======
+(function() {
+  const stores = DATA.store_rank.map(r => r.门店);
+  const actuals = DATA.store_rank.map(r => r.总实收额);
+  const targets = stores.map(s => STORE_TARGETS[s] || 0);
+  const rates = stores.map((s,i) => targets[i] > 0 ? Math.min(actuals[i] / targets[i] * 100, 100) : 0);
+  const grid = document.getElementById('targetDonutGrid');
+
+  stores.forEach((store, idx) => {
+    const rate = rates[idx];
+    const actual = actuals[idx];
+    const target = targets[idx];
+    const remaining = target > actual ? target - actual : 0;
+    const color = rate >= 100 ? '#10b981' : rate >= 80 ? '#3b82f6' : rate >= 60 ? '#f59e0b' : '#ef4444';
+
+    const item = document.createElement('div');
+    item.className = 'donut-item';
+    const canvas = document.createElement('canvas');
+    canvas.id = 'target-donut-' + idx;
+    item.innerHTML = `<div class="donut-title">${store}</div><div class="donut-sub">目标 ${fmtW(target)} · 实际 ${fmtW(actual)}</div>`;
+    item.appendChild(canvas);
+    grid.appendChild(item);
+
+    new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: [rate >= 100 ? '已完成 100%' : '已完成 ' + rate.toFixed(1) + '%', '未达标部分 ' + (remaining > 0 ? (remaining/target*100).toFixed(1) : 0) + '%'],
+        datasets: [{
+          data: rate >= 100 ? [target, 0] : [actual, remaining],
+          backgroundColor: [color, '#e8ecf0'],
+          borderWidth: 0,
+          cutout: '70%'
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true, cutout: '70%',
+        plugins: { legend: { display: false }, tooltip: { enabled: false },
+          // Use the plugin to draw center text
+          // We need to draw the rate at center
+        }
+      },
+      plugins: [{
+        id: 'centerText',
+        afterDraw(chart) {
+          const { ctx, chartArea: { top, bottom, left, right } } = chart;
+          const centerX = (left + right) / 2;
+          const centerY = (top + bottom) / 2;
+          ctx.save();
+          ctx.font = 'bold 26px "PingFang SC","Microsoft YaHei",sans-serif';
+          ctx.fillStyle = color;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(rate.toFixed(0) + '%', centerX, centerY - 6);
+          ctx.font = '11px "PingFang SC","Microsoft YaHei",sans-serif';
+          ctx.fillStyle = '#64748b';
+          ctx.fillText('达标率', centerX, centerY + 20);
+          ctx.restore();
+        }
+      }]
+    });
+  });
+})();
+
+// ====== CHART 4: Animal Bar TOP 8 (full width) ======
+(function() {
+  const top8 = DATA.animal_amt.slice(0,8);
+  const animalColors = ANIMAL_COLORS.slice(0,8);
+  const maxVal = top8[0].金额;
+  new Chart(document.getElementById('animalBar'), {
+    type: 'bar',
+    data: {
+      labels: top8.map(r => r.种类),
+      datasets: [{ data: top8.map(r => r.金额), backgroundColor: animalColors, borderRadius: 8, borderSkipped: false, barThickness: 30 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => {
+          const pct = (ctx.parsed.x / maxVal * 100).toFixed(1);
+          return top8[ctx.dataIndex].种类 + ': ' + fmt(ctx.parsed.x) + '（占TOP1的' + pct + '%）';
+        }}}
+      },
+      scales: {
+        x: { ticks: { callback: v => fmtW(v), font: { size: 12 } }, grid: { color: '#f1f5f9' } },
+        y: { ticks: { font: { size: 13, weight: '600' }, color: '#334155' }, grid: { display: false } }
+      }
+    }
+  });
+})();
+
+// ====== STORE RANK TABLE ======
+(function() {
+  const catMap = getStoreCatMap();
+  const billsMap = getStoreBillsMap();
+  const cats = ['门诊','化验','住院','手术','CT/MRI','X光/助扶费'];
+  const tbody = document.getElementById('storeRankBody');
+  DATA.store_rank.forEach(row => {
+    const tr = document.createElement('tr');
+    const rankClass = row.排名 <= 3 ? ['rank-1','rank-2','rank-3'][row.排名-1] : 'rank-n';
+    const sc = catMap[row.门店] || {};
+    tr.innerHTML = `
+      <td><span class="rank-badge ${rankClass}">${row.排名}</span></td>
+      <td><strong>${row.门店}</strong></td>
+      <td class="amount">${fmt(row.总实收额)}</td>
+      <td>${(billsMap[row.门店]||0).toLocaleString()}</td>
+      ${cats.map(c => `<td>${sc[c] ? fmt(sc[c]) : '-'}</td>`).join('')}
+    `;
+    tbody.appendChild(tr);
+  });
+})();
+
+// ====== STACKED BAR: Store Cat ======
+(function() {
+  const cats = ['门诊','化验','住院','手术','CT/MRI','X光/助扶费'];
+  const stores = DATA.store_rank.map(r => r.门店);
+  const catMap = getStoreCatMap();
+  const datasets = cats.map((cat, i) => ({
+    label: cat,
+    data: stores.map(s => (catMap[s]||{})[cat] || 0),
+    backgroundColor: Object.values(CAT_COLORS)[i],
+    borderRadius: i === cats.length-1 ? { topLeft:6, topRight:6 } : 0,
+    borderSkipped: false
+  }));
+  new Chart(document.getElementById('storeCatStack'), {
+    type: 'bar',
+    data: { labels: stores, datasets },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } } },
+      scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, ticks: { callback: v => fmtW(v) }, grid: { color: '#f1f5f9' } } }
+    }
+  });
+})();
+
+// ====== RADAR MINI CHARTS ======
+(function() {
+  const cats = ['门诊','化验','住院','手术','CT/MRI','X光/助扶费'];
+  const catMap = getStoreCatMap();
+  const grid = document.getElementById('storeRadarGrid');
+  DATA.store_rank.forEach((row, idx) => {
+    const sc = catMap[row.门店] || {};
+    const total = Object.values(sc).reduce((a,b)=>a+b,0);
+    const div = document.createElement('div');
+    div.style.cssText = 'background:#f8fafc;border-radius:12px;padding:16px;';
+    const canvas = document.createElement('canvas');
+    canvas.style.maxHeight = '160px';
+    div.innerHTML = `<div style="font-size:13px;font-weight:600;color:#1e293b;margin-bottom:10px;">${row.门店}</div>`;
+    div.appendChild(canvas);
+    grid.appendChild(div);
+    new Chart(canvas, {
+      type: 'radar',
+      data: {
+        labels: cats,
+        datasets: [{ data: cats.map(c => sc[c]||0), backgroundColor: STORE_COLORS[idx]+'33', borderColor: STORE_COLORS[idx], pointBackgroundColor: STORE_COLORS[idx], borderWidth: 2, pointRadius: 3 }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
+        scales: { r: { ticks: { display: false }, grid: { color: '#e2e8f0' }, pointLabels: { font: { size: 10 } } } }
+      }
+    });
+  });
+})();
+
+// ====== DOCTOR TAB ======
+let docCurrentStore = '全部';
+let docChartInstance = null;
+
+function buildDocTable(filterStore) {
+  const tbody = document.getElementById('doctorTableBody');
+  tbody.innerHTML = '';
+  const filtered = filterStore === '全部' 
+    ? DATA.doctor_store.filter(r => !r.开单人.includes('回访'))
+    : DATA.doctor_store.filter(r => r.门店 === filterStore && !r.开单人.includes('回访'));
+  filtered.sort((a,b) => b.金额 - a.金额);
+  const top20 = filtered.slice(0, 20);
+  top20.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    const rankClass = i < 1 ? 'rank-1' : i < 2 ? 'rank-2' : i < 3 ? 'rank-3' : 'rank-n';
+    const target = DOCTOR_TARGETS[row.开单人] || 0;
+    const rate = target > 0 ? (row.金额 / target * 100) : 0;
+    const rateColor = rate >= 100 ? '#10b981' : rate >= 80 ? '#3b82f6' : rate >= 60 ? '#f59e0b' : '#ef4444';
+    const rateText = target > 0 ? rate.toFixed(1) + '%' : '—';
+    const targetText = target > 0 ? fmt(target) : '—';
+    tr.innerHTML = `
+      <td><span class="rank-badge ${rankClass}">${i+1}</span></td>
+      <td>${row.门店}</td>
+      <td><strong>${row.开单人}</strong></td>
+      <td class="amount">${fmt(row.金额)}</td>
+      <td class="amount">${targetText}</td>
+      <td class="amount" style="color:${rateColor};font-weight:700;">${rateText}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  return top20;
+}
+
+function buildDocChart(filterStore) {
+  if (docChartInstance) { docChartInstance.destroy(); }
+  const filtered = DATA.doctor_store.filter(r => 
+    (filterStore === '全部' || r.门店 === filterStore) && !r.开单人.includes('回访')
+  ).sort((a,b) => b.金额 - a.金额).slice(0,20);
+  
+  const storeList = DATA.store_rank.map(r => r.门店);
+  const colorMap = {};
+  storeList.forEach((s,i) => { colorMap[s] = STORE_COLORS[i]; });
+
+  const ctx = document.getElementById('doctorBar');
+  docChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: filtered.map(r => r.开单人),
+      datasets: [{
+        data: filtered.map(r => r.金额),
+        backgroundColor: filtered.map(r => (colorMap[r.门店] || '#3b82f6') + 'cc'),
+        borderColor: filtered.map(r => colorMap[r.门店] || '#3b82f6'),
+        borderWidth: 2,
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { 
+          label: ctx => {
+            const doc = filtered[ctx.dataIndex];
+            const target = DOCTOR_TARGETS[doc.开单人] || 0;
+            const rate = target > 0 ? (doc.金额 / target * 100).toFixed(1) + '%' : '—';
+            return '实收额: ' + fmt(ctx.parsed.x) + ' | 目标: ' + (target > 0 ? fmt(target) : '—') + ' | 达标率: ' + rate;
+          },
+          afterLabel: ctx => '门店：' + filtered[ctx.dataIndex].门店
+        }}
+      },
+      scales: { x: { ticks: { callback: v => fmtW(v) }, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
+    }
+  });
+  document.getElementById('docChartTitle').textContent = '开单人实收额排名（' + filterStore + (filterStore !== '全部' ? '' : '，TOP20') + '）· 悬停查看达标率';
+}
+
+(function() {
+  const selector = document.getElementById('docStoreSelector');
+  const stores = ['全部', ...DATA.store_rank.map(r => r.门店)];
+  stores.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'store-btn' + (s === '全部' ? ' active' : '');
+    btn.textContent = s;
+    btn.onclick = () => {
+      document.querySelectorAll('.store-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      docCurrentStore = s;
+      buildDocChart(s);
+      buildDocTable(s);
+    };
+    selector.appendChild(btn);
+  });
+  buildDocChart('全部');
+  buildDocTable('全部');
+})();
+
+// ====== CAT BAR + DOUGHNUT ======
+(function() {
+  new Chart(document.getElementById('catBar'), {
+    type: 'bar',
+    data: {
+      labels: DATA.cat_amt.map(r => r.业绩分类),
+      datasets: [{ data: DATA.cat_amt.map(r => r.金额), backgroundColor: Object.values(CAT_COLORS), borderRadius: 8, borderSkipped: false }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.y) } } },
+      scales: { y: { ticks: { callback: v => fmtW(v) }, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+    }
+  });
+  new Chart(document.getElementById('catDoughnut'), {
+    type: 'doughnut',
+    data: {
+      labels: DATA.cat_amt.map(r => r.业绩分类),
+      datasets: [{ data: DATA.cat_amt.map(r => r.金额), backgroundColor: Object.values(CAT_COLORS), borderWidth: 3, borderColor: '#fff' }]
+    },
+    options: {
+      responsive: true, cutout: '60%',
+      plugins: { legend: { position: 'right' }, tooltip: { callbacks: { label: ctx => ctx.label + ': ' + fmt(ctx.parsed) } } }
+    }
+  });
+})();
+
+// ====== CAT STORE BAR ======
+(function() {
+  const stores = DATA.store_rank.map(r => r.门店);
+  const catMap = getStoreCatMap();
+  const datasets = DATA.cat_amt.map((cat, i) => ({
+    label: cat.业绩分类,
+    data: stores.map(s => (catMap[s]||{})[cat.业绩分类] || 0),
+    backgroundColor: Object.values(CAT_COLORS)[i],
+    borderRadius: 4,
+    borderSkipped: false
+  }));
+  new Chart(document.getElementById('catStoreBar'), {
+    type: 'bar',
+    data: { labels: stores, datasets },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } } },
+      scales: { x: { grid: { display: false } }, y: { ticks: { callback: v => fmtW(v) }, grid: { color: '#f1f5f9' } } }
+    }
+  });
+})();
+
+// ====== ANIMAL CHARTS ======
+(function() {
+  new Chart(document.getElementById('animalBarFull'), {
+    type: 'bar',
+    data: {
+      labels: DATA.animal_amt.map(r => r.种类),
+      datasets: [{ data: DATA.animal_amt.map(r => r.金额), backgroundColor: ANIMAL_COLORS, borderRadius: 6, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.x) } } },
+      scales: { x: { ticks: { callback: v => fmtW(v) }, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
+    }
+  });
+  new Chart(document.getElementById('animalDoughnut'), {
+    type: 'doughnut',
+    data: {
+      labels: DATA.animal_amt.slice(0,8).map(r => r.种类),
+      datasets: [{ data: DATA.animal_amt.slice(0,8).map(r => r.金额), backgroundColor: ANIMAL_COLORS.slice(0,8), borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: {
+      responsive: true, cutout: '55%',
+      plugins: { legend: { position: 'right' }, tooltip: { callbacks: { label: ctx => ctx.label + ': ' + fmt(ctx.parsed) } } }
+    }
+  });
+
+  const totalAnimal = DATA.animal_amt.reduce((a,b) => a+b.金额, 0);
+  const tbody = document.getElementById('animalTableBody');
+  DATA.animal_amt.forEach((row, i) => {
+    const pct = (row.金额 / totalAnimal * 100).toFixed(1);
+    const barW = Math.round(row.金额 / DATA.animal_amt[0].金额 * 180);
+    const rankClass = i < 1 ? 'rank-1' : i < 2 ? 'rank-2' : i < 3 ? 'rank-3' : 'rank-n';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="rank-badge ${rankClass}">${i+1}</span></td>
+      <td><strong>${row.种类}</strong></td>
+      <td class="amount">${fmt(row.金额)}</td>
+      <td>${pct}%</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar" style="width:${barW}px;background:${ANIMAL_COLORS[i]};"></div><span class="bar-label">${pct}%</span></div></td>
+    `;
+    tbody.appendChild(tr);
+  });
+})();
+</script>
+
+</div><!-- /mainContent -->
+
+<script>
+(function(){
+  var pw = 'lide2606';
+  var overlay = document.getElementById('pwOverlay');
+  var input = document.getElementById('pwInput');
+  var btn = document.getElementById('pwBtn');
+  var err = document.getElementById('pwError');
+  var main = document.getElementById('mainContent');
+
+  function check(){
+    if (input.value === pw) {
+      overlay.style.display = 'none';
+      main.style.display = 'block';
+    } else {
+      err.style.display = 'block';
+      input.value = '';
+      input.focus();
+    }
+  }
+  btn.addEventListener('click', check);
+  input.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+})();
+</script>
+</body>
+</html>
