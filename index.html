@@ -106,6 +106,14 @@
   .pw-box .pw-btn { margin-top: 16px; width: 100%; padding: 14px; background: #3b82f6; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
   .pw-box .pw-btn:hover { background: #2563eb; }
   .pw-error { color: #ef4444; font-size: 13px; margin-top: 12px; display: none; }
+
+  /* Data bar for achievement rate */
+  .rate-bar-cell { position: relative; min-width: 160px; }
+  .rate-bar-bg { position: relative; height: 26px; border-radius: 6px; background: #f1f5f9; overflow: hidden; }
+  .rate-bar-fill { position: absolute; top: 0; left: 0; height: 100%; border-radius: 6px; transition: width 0.4s ease; }
+  .rate-bar-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
+  .rate-bar-fill.red { background: linear-gradient(90deg, #ef4444, #f87171); }
+  .rate-bar-text { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; height: 100%; font-size: 13px; font-weight: 700; color: #1e293b; }
 </style>
 </head>
 <body>
@@ -218,14 +226,10 @@
 <div id="tab-doctor" class="section">
   <div class="store-selector" id="docStoreSelector"></div>
   <div class="chart-card">
-    <div class="chart-title" id="docChartTitle">开单人实收额排名</div>
-    <div class="chart-wrap"><canvas id="doctorBar" style="max-height:420px;"></canvas></div>
-  </div>
-  <div class="chart-card">
-    <div class="chart-title">开单人明细表</div>
+    <div class="chart-title" id="docTableTitle">开单人业绩达标率（全部）</div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>排名</th><th>门店</th><th>开单人</th><th>总实收额</th><th>业绩目标</th><th>达标率</th></tr></thead>
+        <thead><tr><th>排名</th><th>门店</th><th>姓名</th><th>业绩目标</th><th>总实收额</th><th style="min-width:180px;">达标率</th></tr></thead>
         <tbody id="doctorTableBody"></tbody>
       </table>
     </div>
@@ -357,57 +361,54 @@ const DATA = {
     { 门店: "上海异宠", 业绩分类: "住院", 金额: 8202.5 }
   ],
   doctor_store: [
-    { 门店: "天河异宠", 开单人: "黄素荃", 金额: 21300.57 },
-    { 门店: "天河异宠", 开单人: "谢冠晖", 金额: 75632 },
-    { 门店: "成都异宠", 开单人: "王鑫", 金额: 21763.66 },
-    { 门店: "成都异宠", 开单人: "杨阳", 金额: 28057.58 },
-    { 门店: "天河肿瘤", 开单人: "曹洁", 金额: 77088.19 },
-    { 门店: "顺德中心", 开单人: "张迪雄", 金额: 68643.25 },
-    { 门店: "顺德中心", 开单人: "陈佩玲", 金额: 81564.84 },
-    { 门店: "天河肿瘤", 开单人: "杨秀碟", 金额: 58157.73 },
-    { 门店: "顺德中心", 开单人: "何慧妍", 金额: 57138.9 },
-    { 门店: "上海异宠", 开单人: "张弦", 金额: 96002.89 },
-    { 门店: "上海异宠", 开单人: "陆越", 金额: 131178.86 },
-    { 门店: "上海异宠", 开单人: "翁治天", 金额: 114570.12 },
-    { 门店: "成都异宠", 开单人: "帅敏", 金额: 87939.68 },
-    { 门店: "成都异宠", 开单人: "阎雪松", 金额: 75232.55 },
-    { 门店: "北京异宠", 开单人: "唐国梁", 金额: 70581.6 },
+    { 门店: "天河异宠", 开单人: "黄素荃", 金额: 20820.57 },
+    { 门店: "天河异宠", 开单人: "谢冠晖", 金额: 75420.43 },
+    { 门店: "成都异宠", 开单人: "王鑫", 金额: 21483.66 },
+    { 门店: "成都异宠", 开单人: "杨阳", 金额: 27477.58 },
+    { 门店: "天河肿瘤", 开单人: "曹洁", 金额: 71095.19 },
+    { 门店: "顺德中心", 开单人: "张迪雄", 金额: 68244.25 },
+    { 门店: "顺德中心", 开单人: "陈佩玲", 金额: 79396.84 },
+    { 门店: "天河肿瘤", 开单人: "杨秀碟", 金额: 55662.73 },
+    { 门店: "顺德中心", 开单人: "何慧妍", 金额: 57123.90 },
+    { 门店: "上海异宠", 开单人: "张弦", 金额: 95078.31 },
+    { 门店: "上海异宠", 开单人: "陆越", 金额: 130691.33 },
+    { 门店: "上海异宠", 开单人: "翁治天", 金额: 113828.12 },
+    { 门店: "成都异宠", 开单人: "帅敏", 金额: 86323.68 },
+    { 门店: "成都异宠", 开单人: "阎雪松", 金额: 74782.55 },
+    { 门店: "北京异宠", 开单人: "唐国梁", 金额: 70221.60 },
     { 门店: "北京异宠", 开单人: "王妍博", 金额: 60048.84 },
-    { 门店: "顺德中心", 开单人: "朱华君", 金额: 66199.98 },
-    { 门店: "顺德中心", 开单人: "0219顺德回访", 金额: 12603.8 },
-    { 门店: "天河异宠", 开单人: "刘泽鑫", 金额: 100295.05 },
+    { 门店: "顺德中心/天河肿瘤/海珠重症", 开单人: "朱华君", 金额: 90740.63 },
+    { 门店: "天河异宠", 开单人: "刘泽鑫", 金额: 99905.05 },
     { 门店: "上海异宠", 开单人: "李淼鑫", 金额: 25489 },
-    { 门店: "天河异宠", 开单人: "0218天河回访", 金额: 497 },
-    { 门店: "上海异宠", 开单人: "0226上海前台回访", 金额: 1820.18 },
-    { 门店: "顺德中心", 开单人: "杨沁颖", 金额: 53689 },
-    { 门店: "成都异宠", 开单人: "2025成都前台回访", 金额: 757 },
-    { 门店: "天河肿瘤", 开单人: "卢恺滢", 金额: 36963.39 },
-    { 门店: "天河肿瘤", 开单人: "黄洁明", 金额: 71085.88 },
-    { 门店: "天河肿瘤", 开单人: "0224肿瘤中医专科回访", 金额: 5881.86 },
-    { 门店: "天河异宠", 开单人: "邹梓俊", 金额: 108594.38 },
-    { 门店: "天河肿瘤", 开单人: "凌晓理", 金额: 137806.73 },
+    { 门店: "顺德中心", 开单人: "杨沁颖", 金额: 53650 },
+    { 门店: "天河肿瘤", 开单人: "卢恺滢", 金额: 35593.39 },
+    { 门店: "天河肿瘤", 开单人: "黄洁明", 金额: 64275.88 },
+    { 门店: "天河异宠", 开单人: "邹梓俊", 金额: 102931.38 },
+    { 门店: "天河肿瘤", 开单人: "凌晓理", 金额: 120318.23 },
     { 门店: "北京异宠", 开单人: "吕新月", 金额: 5879.72 },
-    { 门店: "天河肿瘤", 开单人: "卢舒勉", 金额: 51714.55 },
+    { 门店: "天河肿瘤", 开单人: "卢舒勉", 金额: 50211.50 },
     { 门店: "天河异宠", 开单人: "罗振宇", 金额: 11638 },
-    { 门店: "天河肿瘤", 开单人: "朱华君", 金额: 17432.99 },
-    { 门店: "北京异宠", 开单人: "0223北京回访", 金额: 440 },
-    { 门店: "天河肿瘤", 开单人: "郑惠邻", 金额: 200 },
-    { 门店: "海珠重症", 开单人: "何家杰", 金额: 58353.2 },
-    { 门店: "海珠重症", 开单人: "林倩华", 金额: 117084.07 },
-    { 门店: "海珠重症", 开单人: "朱自洲", 金额: 68637.6 },
-    { 门店: "海珠重症", 开单人: "蔡晓璇", 金额: 505 },
+    { 门店: "海珠重症", 开单人: "何家杰", 金额: 58199.20 },
+    { 门店: "海珠重症", 开单人: "林倩华", 金额: 116609.07 },
+    { 门店: "海珠重症", 开单人: "朱自洲", 金额: 68637.60 },
     { 门店: "海珠重症", 开单人: "董继凤", 金额: 79630.11 },
-    { 门店: "海珠重症", 开单人: "张飏", 金额: 88054.86 },
-    { 门店: "海珠重症", 开单人: "黄妙容", 金额: 47704.99 },
-    { 门店: "海珠重症", 开单人: "0227海珠回访", 金额: 29233.64 },
-    { 门店: "海珠夜间", 开单人: "叶志斌", 金额: 53154.5 },
+    { 门店: "海珠重症", 开单人: "张飏", 金额: 94324.86 },
+    { 门店: "海珠重症", 开单人: "黄妙容", 金额: 42892.49 },
     { 门店: "海珠重症", 开单人: "李泽贤", 金额: 149543.94 },
-    { 门店: "海珠重症", 开单人: "朱华君", 金额: 7437.66 },
-    { 门店: "海珠夜间", 开单人: "何骏贤", 金额: 52877.3 },
+    { 门店: "海珠夜间", 开单人: "叶志斌", 金额: 52522.50 },
+    { 门店: "海珠夜间", 开单人: "何骏贤", 金额: 52877.30 },
+    { 门店: "天河异宠", 开单人: "0218天河回访", 金额: 497 },
+    { 门店: "顺德中心", 开单人: "0219顺德回访", 金额: 12603.80 },
+    { 门店: "北京异宠", 开单人: "0223北京回访", 金额: 440 },
+    { 门店: "天河肿瘤", 开单人: "0224肿瘤中医专科回访", 金额: 5881.86 },
+    { 门店: "上海异宠", 开单人: "0226上海前台回访", 金额: 1820.18 },
+    { 门店: "海珠夜间/海珠重症", 开单人: "0227海珠回访", 金额: 30193.64 },
+    { 门店: "成都异宠", 开单人: "2025成都前台回访", 金额: 757 },
+    { 门店: "海珠重症", 开单人: "蔡晓璇", 金额: 505 },
     { 门店: "海珠重症", 开单人: "阳婷", 金额: 739 },
     { 门店: "海珠重症", 开单人: "林志轩", 金额: 952 },
-    { 门店: "海珠夜间", 开单人: "0227海珠回访", 金额: 960 },
-    { 门店: "海珠重症", 开单人: "张 飏", 金额: 7569 }
+    { 门店: "海珠重症", 开单人: "Charline陈春玲", 金额: 0 },
+    { 门店: "天河肿瘤", 开单人: "郑惠邻", 金额: 200 }
   ],
   cat_amt: [
     { 业绩分类: "门诊", 金额: 890520.87 },
@@ -760,78 +761,52 @@ function getStoreBillsMap() {
 
 // ====== DOCTOR TAB ======
 let docCurrentStore = '全部';
-let docChartInstance = null;
 
 function buildDocTable(filterStore) {
   const tbody = document.getElementById('doctorTableBody');
   tbody.innerHTML = '';
-  const filtered = filterStore === '全部' 
-    ? DATA.doctor_store.filter(r => !r.开单人.includes('回访'))
-    : DATA.doctor_store.filter(r => r.门店 === filterStore && !r.开单人.includes('回访'));
-  filtered.sort((a,b) => b.金额 - a.金额);
+  // Filter: only people with targets, optionally by store
+  let filtered = DATA.doctor_store.filter(r => {
+    if (!DOCTOR_TARGETS[r.开单人]) return false;
+    if (filterStore !== '全部' && !r.门店.includes(filterStore)) return false;
+    return true;
+  });
+  // Sort by total amount descending
+  filtered.sort((a, b) => b.金额 - a.金额);
+  
   filtered.forEach((row, i) => {
     const tr = document.createElement('tr');
     const rankClass = i < 1 ? 'rank-1' : i < 2 ? 'rank-2' : i < 3 ? 'rank-3' : 'rank-n';
     const target = DOCTOR_TARGETS[row.开单人] || 0;
     const rate = target > 0 ? (row.金额 / target * 100) : 0;
-    const rateColor = rate >= 100 ? '#10b981' : rate >= 80 ? '#3b82f6' : rate >= 60 ? '#f59e0b' : '#ef4444';
-    const rateText = target > 0 ? rate.toFixed(1) + '%' : '—';
-    const targetText = target > 0 ? fmt(target) : '—';
+    const achieved = rate >= 100;
+    const barColor = achieved ? 'green' : 'red';
+    const barWidth = Math.min(rate, 100);
+    const rateText = rate.toFixed(1) + '%';
+    const targetText = fmt(target);
+    const amtText = fmt(row.金额);
+    // For store display, if multiple stores, show all
+    const storeDisplay = row.门店;
+    
     tr.innerHTML = `
       <td><span class="rank-badge ${rankClass}">${i+1}</span></td>
-      <td>${row.门店}</td>
+      <td>${storeDisplay}</td>
       <td><strong>${row.开单人}</strong></td>
-      <td class="amount">${fmt(row.金额)}</td>
       <td class="amount">${targetText}</td>
-      <td class="amount" style="color:${rateColor};font-weight:700;">${rateText}</td>
+      <td class="amount">${amtText}</td>
+      <td class="rate-bar-cell">
+        <div class="rate-bar-bg">
+          <div class="rate-bar-fill ${barColor}" style="width:${barWidth}%;"></div>
+          <div class="rate-bar-text">${rateText}</div>
+        </div>
+      </td>
     `;
     tbody.appendChild(tr);
   });
-  return filtered;
-}
-
-function buildDocChart(filterStore) {
-  if (docChartInstance) { docChartInstance.destroy(); }
-  const filtered = DATA.doctor_store.filter(r => 
-    (filterStore === '全部' || r.门店 === filterStore) && !r.开单人.includes('回访')
-  ).sort((a,b) => b.金额 - a.金额).slice(0,20);
   
-  const storeList = DATA.store_rank.map(r => r.门店);
-  const colorMap = {};
-  storeList.forEach((s,i) => { colorMap[s] = STORE_COLORS[i]; });
-
-  const ctx = document.getElementById('doctorBar');
-  docChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: filtered.map(r => r.开单人),
-      datasets: [{
-        data: filtered.map(r => r.金额),
-        backgroundColor: filtered.map(r => (colorMap[r.门店] || '#3b82f6') + 'cc'),
-        borderColor: filtered.map(r => colorMap[r.门店] || '#3b82f6'),
-        borderWidth: 2,
-        borderRadius: 6,
-        borderSkipped: false
-      }]
-    },
-    options: {
-      indexAxis: 'y', responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { 
-          label: ctx => {
-            const doc = filtered[ctx.dataIndex];
-            const target = DOCTOR_TARGETS[doc.开单人] || 0;
-            const rate = target > 0 ? (doc.金额 / target * 100).toFixed(1) + '%' : '—';
-            return '实收额: ' + fmt(ctx.parsed.x) + ' | 目标: ' + (target > 0 ? fmt(target) : '—') + ' | 达标率: ' + rate;
-          },
-          afterLabel: ctx => '门店：' + filtered[ctx.dataIndex].门店
-        }}
-      },
-      scales: { x: { ticks: { callback: v => fmtW(v) }, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
-    }
-  });
-  document.getElementById('docChartTitle').textContent = '开单人实收额排名（' + filterStore + (filterStore !== '全部' ? '' : '，全部开单人') + '）· 悬停查看达标率';
+  // Update title
+  document.getElementById('docTableTitle').textContent = '开单人业绩达标率（' + filterStore + '）· 共 ' + filtered.length + ' 人';
+  return filtered;
 }
 
 (function() {
@@ -845,12 +820,10 @@ function buildDocChart(filterStore) {
       document.querySelectorAll('.store-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       docCurrentStore = s;
-      buildDocChart(s);
       buildDocTable(s);
     };
     selector.appendChild(btn);
   });
-  buildDocChart('全部');
   buildDocTable('全部');
 })();
 
