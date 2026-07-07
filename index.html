@@ -114,18 +114,12 @@
   @media (max-width: 1100px) { .penetration-tables { grid-template-columns: 1fr; } }
   .penetration-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
   .penetration-table th, .penetration-table td { padding: 11px 8px; text-align: center !important; border: 1px solid #e2e8f0; }
-  .penetration-table th { background: #f8fafc; color: #334155; font-weight: 700; }
-  .penetration-table thead tr:first-child th { background: #eff6ff; color: #1e40af; font-size: 13px; }
+  .penetration-table th { background: #f8fafc; color: #1a1a1a; font-weight: 700; }
+  .penetration-table thead tr:first-child th { background: #f8fafc; color: #1a1a1a; font-size: 13px; }
   .penetration-table .sub-head { background: #f1f5f9; color: #64748b; font-size: 12px; }
   .penetration-table tbody tr:nth-child(even) { background: #f8fafc; }
   .penetration-table tbody tr:hover { background: #eff6ff; }
-  .penetration-table .pct { font-weight: 700; }
-  .penetration-table .pct.blue { color: #1d4ed8; }
-  .penetration-table .pct.pink { color: #be185d; }
-  .penetration-table .pct.orange { color: #c2410c; }
-  .penetration-table .pct.green { color: #15803d; }
-  .penetration-table .pct.purple { color: #6b21a8; }
-  .penetration-table .pct.cyan { color: #0e7490; }
+  .penetration-table .pct { font-weight: 700; color: #dc2626; }
   .penetration-table .amount { font-weight: 600; }
   .penetration-note { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; color: #0369a1; font-size: 13px; line-height: 1.7; }
 
@@ -167,7 +161,7 @@
   <div class="nav-tab" onclick="showTab('doctor')">👨‍⚕️ 开单人排名</div>
   <div class="nav-tab" onclick="showTab('category')">📋 业绩分类</div>
   <div class="nav-tab" onclick="showTab('animal')">🐾 动物种类</div>
-  <div class="nav-tab" onclick="showTab('penetration')">💉 医院及医生业绩渗透率</div>
+  <div class="nav-tab" onclick="showTab('penetration')">💉 医院业绩渗透率对比</div>
 </div>
 
 <!-- ==================== TAB 1: 总览 ==================== -->
@@ -300,10 +294,10 @@
   </div>
 </div>
 
-<!-- ==================== TAB 6: 医院及医生业绩渗透率 ==================== -->
+<!-- ==================== TAB 6: 医院业绩渗透率对比 ==================== -->
 <div id="tab-penetration" class="section">
   <div class="chart-card">
-    <div class="chart-title">🏥 医院及医生业绩渗透率</div>
+    <div class="chart-title">🏥 医院业绩渗透率对比</div>
     <div class="penetration-note">
       <strong>口径说明：</strong>月病例量 = 按病历卡号去重计数；影像渗透率 = 影像检查数量 ÷ 月病例量；业绩占比 = 各分类实收额 ÷ 分院总业绩。已排除前台/回访等无业绩目标的账号。
     </div>
@@ -525,7 +519,7 @@ const DOCTOR_TARGETS = {
 const CAT_COLORS = { '门诊':'#3b82f6','化验':'#10b981','住院':'#ec4899','手术':'#f59e0b','CT/MRI':'#8b5cf6','X光/助扶费':'#f97316','B超':'#06b6d4' };
 const ANIMAL_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#ec4899','#84cc16','#14b8a6','#a855f7','#fb923c','#22d3ee','#fbbf24','#e879f9'];
 
-// ====== PENETRATION DATA (医院及医生业绩渗透率) ======
+// ====== PENETRATION DATA (医院业绩渗透率对比) ======
 const PENETRATION_DATA = {
   exotic: [
     { store: '天河异宠', cases: 92, xray: 92, xrayPct: 100.0, ct: 9, ctPct: 9.8, b: 1, bPct: 1.1, total: 78341.03, out: 18271.73, outPct: 23.3, in: 15782.0, inPct: 20.1, surg: 13890.88, surgPct: 17.7, lab: 14773.28, labPct: 18.9 },
@@ -974,11 +968,11 @@ function renderPenetrationTables() {
             <td><strong>${d.store}</strong></td>
             <td>${fmtN(d.cases)}</td>
             <td>${fmtN(d.xray)}</td>
-            <td class="pct purple">${fmtPct(d.xrayPct)}</td>
+            <td class="pct">${fmtPct(d.xrayPct)}</td>
             <td>${fmtN(d.ct)}</td>
-            <td class="pct purple">${fmtPct(d.ctPct)}</td>
+            <td class="pct">${fmtPct(d.ctPct)}</td>
             <td>${fmtN(d.b)}</td>
-            <td class="pct cyan">${fmtPct(d.bPct)}</td>
+            <td class="pct">${fmtPct(d.bPct)}</td>
           </tr>
         `).join('')}
       </tbody>
@@ -1008,13 +1002,13 @@ function renderPenetrationTables() {
             <td><strong>${d.store}</strong></td>
             <td class="amount">${fmtAmt(d.total)}</td>
             <td class="amount">${fmtAmt(d.out)}</td>
-            <td class="pct blue">${fmtPct(d.outPct)}</td>
+            <td class="pct">${fmtPct(d.outPct)}</td>
             <td class="amount">${fmtAmt(d.in)}</td>
-            <td class="pct pink">${fmtPct(d.inPct)}</td>
+            <td class="pct">${fmtPct(d.inPct)}</td>
             <td class="amount">${fmtAmt(d.surg)}</td>
-            <td class="pct orange">${fmtPct(d.surgPct)}</td>
+            <td class="pct">${fmtPct(d.surgPct)}</td>
             <td class="amount">${fmtAmt(d.lab)}</td>
-            <td class="pct green">${fmtPct(d.labPct)}</td>
+            <td class="pct">${fmtPct(d.labPct)}</td>
           </tr>
         `).join('')}
       </tbody>
