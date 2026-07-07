@@ -107,6 +107,22 @@
   .pw-box .pw-btn:hover { background: #2563eb; }
   .pw-error { color: #ef4444; font-size: 13px; margin-top: 12px; display: none; }
 
+  /* Penetration tables */
+  .penetration-store-group { margin-bottom: 24px; }
+  .penetration-store-title { font-size: 15px; font-weight: 700; color: #1e293b; margin: 20px 0 12px; padding-left: 12px; border-left: 4px solid #3b82f6; }
+  .penetration-table { font-size: 12px; }
+  .penetration-table th { padding: 10px 8px; white-space: nowrap; }
+  .penetration-table td { padding: 9px 8px; text-align: right; }
+  .penetration-table td:first-child, .penetration-table td:nth-child(2) { text-align: left; }
+  .penetration-table .pct { font-weight: 600; }
+  .penetration-table .pct.blue { color: #1d4ed8; }
+  .penetration-table .pct.green { color: #166534; }
+  .penetration-table .pct.pink { color: #9d174d; }
+  .penetration-table .pct.orange { color: #92400e; }
+  .penetration-table .pct.purple { color: #5b21b6; }
+  .penetration-table .pct.cyan { color: #0e7490; }
+  .penetration-table .sub-head { background: #f1f5f9; color: #64748b; font-size: 11px; font-weight: 600; }
+
   /* Data bar for achievement rate */
   .rate-bar-cell { position: relative; min-width: 160px; }
   .rate-bar-bg { position: relative; height: 26px; border-radius: 6px; background: #f1f5f9; overflow: hidden; }
@@ -145,6 +161,7 @@
   <div class="nav-tab" onclick="showTab('doctor')">👨‍⚕️ 开单人排名</div>
   <div class="nav-tab" onclick="showTab('category')">📋 业绩分类</div>
   <div class="nav-tab" onclick="showTab('animal')">🐾 动物种类</div>
+  <div class="nav-tab" onclick="showTab('penetration')">💉 医院及医生业绩渗透率</div>
 </div>
 
 <!-- ==================== TAB 1: 总览 ==================== -->
@@ -274,6 +291,28 @@
         <tbody id="animalTableBody"></tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 6: 医院及医生业绩渗透率 ==================== -->
+<div id="tab-penetration" class="section">
+  <div class="chart-card">
+    <div class="chart-title">🏥 医院及医生业绩渗透率</div>
+    <div class="subtitle" style="margin-bottom:16px;color:#64748b;">
+      月病例量 = 按病历卡号去重计数；渗透率 = 影像检查数量 / 月病例量；业绩占比 = 各分类实收额 / 个人总业绩
+    </div>
+  </div>
+
+  <!-- 异宠门店 -->
+  <div class="chart-card">
+    <div class="chart-title">🦜 异宠门店（天河/成都/上海/北京）</div>
+    <div id="exoticStoreTables"></div>
+  </div>
+
+  <!-- 犬猫门店 -->
+  <div class="chart-card">
+    <div class="chart-title">🐕 犬猫门店（顺德/天河肿瘤/海珠重症/海珠夜间）</div>
+    <div id="dogcatStoreTables"></div>
   </div>
 </div>
 
@@ -461,6 +500,83 @@ const DOCTOR_TARGETS = {
 };
 const CAT_COLORS = { '门诊':'#3b82f6','化验':'#10b981','住院':'#ec4899','手术':'#f59e0b','CT/MRI':'#8b5cf6','X光/助扶费':'#f97316','B超':'#06b6d4' };
 const ANIMAL_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#ec4899','#84cc16','#14b8a6','#a855f7','#fb923c','#22d3ee','#fbbf24','#e879f9'];
+
+// ====== PENETRATION DATA (医院及医生业绩渗透率) ======
+const PENETRATION_DATA = {
+  exotic: [
+    { store: '天河异宠', doctors: [
+      { name: '邹梓俊', cases: 32, total: 30027, out: 6090.62, outPct: 20.3, in: 3072, inPct: 10.2, surg: 7010, surgPct: 23.3, lab: 7643.77, labPct: 25.5, xray: 22, xrayPct: 68.8, ct: 3, ctPct: 9.4, b: 1, bPct: 3.1 },
+      { name: '刘泽鑫', cases: 38, total: 19118.53, out: 5003.67, outPct: 26.2, in: 0, inPct: 0, surg: 6880.88, surgPct: 36.0, lab: 2293.69, labPct: 12.0, xray: 38, xrayPct: 100.0, ct: 3, ctPct: 7.9, b: 0, bPct: 0 },
+      { name: '谢冠晖', cases: 17, total: 12745, out: 6116.8, outPct: 48.0, in: 442, inPct: 3.5, surg: 0, surgPct: 0, lab: 3833.77, labPct: 30.1, xray: 14, xrayPct: 82.4, ct: 2, ctPct: 11.8, b: 0, bPct: 0 },
+      { name: '黄素荃', cases: 12, total: 10409, out: 775.14, outPct: 7.4, in: 7208, inPct: 69.2, surg: 0, surgPct: 0, lab: 726.05, labPct: 7.0, xray: 12, xrayPct: 100.0, ct: 1, ctPct: 8.3, b: 0, bPct: 0 },
+      { name: '罗振宇', cases: 9, total: 6041.5, out: 285.5, outPct: 4.7, in: 5060, inPct: 83.8, surg: 0, surgPct: 0, lab: 276, labPct: 4.6, xray: 6, xrayPct: 66.7, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '0218天河回访', cases: 2, total: 316.46, out: 316.46, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 }
+    ]},
+    { store: '成都异宠', doctors: [
+      { name: '阎雪松', cases: 44, total: 27661, out: 10005.64, outPct: 36.2, in: 3250.01, inPct: 11.7, surg: 4729.83, surgPct: 17.1, lab: 5650, labPct: 20.4, xray: 6, xrayPct: 13.6, ct: 4, ctPct: 9.1, b: 0, bPct: 0 },
+      { name: '帅敏', cases: 31, total: 20401.77, out: 9204.52, outPct: 45.1, in: 290, inPct: 1.4, surg: 3274.24, surgPct: 16.0, lab: 2885.02, labPct: 14.1, xray: 17, xrayPct: 54.8, ct: 1, ctPct: 3.2, b: 0, bPct: 0 },
+      { name: '王鑫', cases: 11, total: 9073, out: 1365, outPct: 15.0, in: 7048, inPct: 77.7, surg: 0, surgPct: 0, lab: 660, labPct: 7.3, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '杨阳', cases: 15, total: 4554.23, out: 1049.23, outPct: 23.0, in: 3385, inPct: 74.3, surg: 0, surgPct: 0, lab: 120, labPct: 2.6, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '2025成都前台回访', cases: 2, total: 37, out: 37, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 }
+    ]},
+    { store: '上海异宠', doctors: [
+      { name: '陆越', cases: 42, total: 32803, out: 14859.07, outPct: 45.3, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 6226.8, labPct: 19.0, xray: 9, xrayPct: 21.4, ct: 10, ctPct: 23.8, b: 0, bPct: 0 },
+      { name: '翁治天', cases: 19, total: 22741.49, out: 9120.71, outPct: 40.1, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 4453, labPct: 19.6, xray: 5, xrayPct: 26.3, ct: 6, ctPct: 31.6, b: 0, bPct: 0 },
+      { name: '张弦', cases: 33, total: 18865.1, out: 6555.02, outPct: 34.7, in: 2340, inPct: 12.4, surg: 0, surgPct: 0, lab: 4478.92, labPct: 23.7, xray: 6, xrayPct: 18.2, ct: 4, ctPct: 12.1, b: 1, bPct: 3.0 },
+      { name: '李淼鑫', cases: 23, total: 12628.51, out: 4497.19, outPct: 35.6, in: 5830, inPct: 46.2, surg: 0, surgPct: 0, lab: 1861.32, labPct: 14.7, xray: 2, xrayPct: 8.7, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '0226上海前台回访', cases: 1, total: 100, out: 100, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 }
+    ]},
+    { store: '北京异宠', doctors: [
+      { name: '唐国梁', cases: 44, total: 30163, out: 15536, outPct: 51.5, in: 417, inPct: 1.4, surg: 0, surgPct: 0, lab: 4750, labPct: 15.7, xray: 20, xrayPct: 45.5, ct: 6, ctPct: 13.6, b: 0, bPct: 0 },
+      { name: '王妍博', cases: 24, total: 9216, out: 5606, outPct: 60.8, in: 750, inPct: 8.1, surg: 500, surgPct: 5.4, lab: 760, labPct: 8.2, xray: 8, xrayPct: 33.3, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '吕新月', cases: 1, total: 151.5, out: 151.5, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 }
+    ]}
+  ],
+  dogcat: [
+    { store: '顺德中心', doctors: [
+      { name: '杨沁颖', cases: 26, total: 23302.49, out: 8665.03, outPct: 37.2, in: 593.8, inPct: 2.5, surg: 0, surgPct: 0, lab: 8221.77, labPct: 35.3, xray: 15, xrayPct: 57.7, ct: 4, ctPct: 15.4, b: 8, bPct: 30.8 },
+      { name: '陈佩玲', cases: 20, total: 22348.7, out: 6583.89, outPct: 29.5, in: 5321.01, inPct: 23.8, surg: 0, surgPct: 0, lab: 9028.81, labPct: 40.4, xray: 20, xrayPct: 100.0, ct: 0, ctPct: 0, b: 7, bPct: 35.0 },
+      { name: '朱华君', cases: 19, total: 19443.69, out: 17535.12, outPct: 90.2, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 1908.57, labPct: 9.8, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '张迪雄', cases: 22, total: 17937.64, out: 3316.94, outPct: 18.5, in: 0, inPct: 0, surg: 7886.73, surgPct: 44.0, lab: 2266.14, labPct: 12.6, xray: 6, xrayPct: 27.3, ct: 4, ctPct: 18.2, b: 6, bPct: 27.3 },
+      { name: '何慧妍', cases: 22, total: 11682.44, out: 4150.73, outPct: 35.5, in: 3283, inPct: 28.1, surg: 0, surgPct: 0, lab: 2578.01, labPct: 22.1, xray: 8, xrayPct: 36.4, ct: 0, ctPct: 0, b: 5, bPct: 22.7 },
+      { name: '0219顺德回访', cases: 16, total: 4798.07, out: 4469.27, outPct: 93.1, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 328.8, labPct: 6.9, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '梁菲栩', cases: 1, total: 99, out: 0, outPct: 0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 99, labPct: 100.0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '冯晓清', cases: 1, total: 44, out: 44, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 }
+    ]},
+    { store: '天河肿瘤', doctors: [
+      { name: '凌晓理', cases: 18, total: 44856, out: 5268.53, outPct: 11.7, in: 1520, inPct: 3.4, surg: 28604.26, surgPct: 63.8, lab: 6106.74, labPct: 13.6, xray: 13, xrayPct: 72.2, ct: 4, ctPct: 22.2, b: 4, bPct: 22.2 },
+      { name: '黄洁明', cases: 23, total: 28388.38, out: 9183.32, outPct: 32.3, in: 0, inPct: 0, surg: 4825.76, surgPct: 17.0, lab: 8340.67, labPct: 29.4, xray: 24, xrayPct: 104.3, ct: 7, ctPct: 30.4, b: 8, bPct: 34.8 },
+      { name: '曹洁', cases: 21, total: 27457.58, out: 10155.35, outPct: 37.0, in: 10946.5, inPct: 39.9, surg: 0, surgPct: 0, lab: 5268.61, labPct: 19.2, xray: 12, xrayPct: 57.1, ct: 0, ctPct: 0, b: 4, bPct: 19.0 },
+      { name: '杨秀碟', cases: 17, total: 13061.54, out: 7033.42, outPct: 53.8, in: 0, inPct: 0, surg: 470.02, surgPct: 3.6, lab: 4711.06, labPct: 36.1, xray: 4, xrayPct: 23.5, ct: 0, ctPct: 0, b: 4, bPct: 23.5 },
+      { name: '卢舒勉', cases: 10, total: 11037.34, out: 1259, outPct: 11.4, in: 7858.96, inPct: 71.2, surg: 0, surgPct: 0, lab: 1679.38, labPct: 15.2, xray: 4, xrayPct: 40.0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '朱华君', cases: 5, total: 5039.33, out: 5039.33, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '卢恺滢', cases: 5, total: 2714, out: 16, outPct: 0.6, in: 2308, inPct: 85.0, surg: 0, surgPct: 0, lab: 390, labPct: 14.4, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '0224肿瘤中医专科回访', cases: 8, total: 497.46, out: 497.46, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 }
+    ]},
+    { store: '海珠重症', doctors: [
+      { name: '李泽贤', cases: 28, total: 42467.94, out: 5878.66, outPct: 13.8, in: 0, inPct: 0, surg: 16998.32, surgPct: 40.0, lab: 10395.09, labPct: 24.5, xray: 24, xrayPct: 85.7, ct: 6, ctPct: 21.4, b: 10, bPct: 35.7 },
+      { name: '张飏', cases: 35, total: 33709.3, out: 13330.59, outPct: 39.5, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 10293.21, labPct: 30.5, xray: 4, xrayPct: 11.4, ct: 15, ctPct: 42.9, b: 6, bPct: 17.1 },
+      { name: '林倩华', cases: 19, total: 33213.02, out: 1872.92, outPct: 5.6, in: 23226.1, inPct: 69.9, surg: 0, surgPct: 0, lab: 7334, labPct: 22.1, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 3, bPct: 15.8 },
+      { name: '董继凤', cases: 20, total: 30464.48, out: 2472.48, outPct: 8.1, in: 25812, inPct: 84.7, surg: 0, surgPct: 0, lab: 2180, labPct: 7.2, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '叶志斌', cases: 15, total: 13864, out: 2119.18, outPct: 15.3, in: 0, inPct: 0, surg: 3632.23, surgPct: 26.2, lab: 4897.8, labPct: 35.3, xray: 4, xrayPct: 26.7, ct: 3, ctPct: 20.0, b: 2, bPct: 13.3 },
+      { name: '何家杰', cases: 16, total: 12840, out: 4030.79, outPct: 31.4, in: 0, inPct: 0, surg: 2991.65, surgPct: 23.3, lab: 2258.95, labPct: 17.6, xray: 8, xrayPct: 50.0, ct: 4, ctPct: 25.0, b: 3, bPct: 18.8 },
+      { name: '0227海珠回访', cases: 17, total: 3635.13, out: 3545.13, outPct: 97.5, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 90, labPct: 2.5, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: 'Charline陈春玲', cases: 2, total: 581.66, out: 581.66, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '张 飏', cases: 1, total: 493, out: 493, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '阳婷', cases: 5, total: 472, out: 472, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '蔡晓璇', cases: 3, total: 228, out: 228, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '0220海珠回访', cases: 0, total: 180, out: 180, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '黄妙容', cases: 1, total: 124, out: 0, outPct: 0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 124, labPct: 100.0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '朱自洲', cases: 2, total: 54.84, out: 54.84, outPct: 100.0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 }
+    ]},
+    { store: '海珠夜间', doctors: [
+      { name: '何骏贤', cases: 14, total: 21125, out: 15129, outPct: 71.6, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 3796, labPct: 18.0, xray: 20, xrayPct: 142.9, ct: 0, ctPct: 0, b: 2, bPct: 14.3 },
+      { name: '朱自洲', cases: 3, total: 4243, out: 3920.5, outPct: 92.4, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 322.5, labPct: 7.6, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '叶志斌', cases: 5, total: 2420, out: 1000, outPct: 41.3, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 1420, labPct: 58.7, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 },
+      { name: '林志轩', cases: 2, total: 1234, out: 612, outPct: 49.6, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 622, labPct: 50.4, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0 }
+    ]}
+  ]
+};
 
 // ====== Custom Plugin: Doughnut Percentage Labels ======
 const doughnutPercentPlugin = {
@@ -865,6 +981,84 @@ function buildDocTable(filterStore) {
       scales: { x: { grid: { display: false } }, y: { ticks: { callback: v => fmtW(v) }, grid: { color: '#f1f5f9' } } }
     }
   });
+})();
+
+// ====== PENETRATION RENDERER ======
+function renderPenetrationTables() {
+  function fmtN(n) { return Number(n).toLocaleString('zh-CN', {maximumFractionDigits:0}); }
+  function fmtAmt(n) { return '¥' + fmtN(n); }
+  function fmtPct(n) { return n.toFixed(1) + '%'; }
+
+  function buildGroupTable(groupData, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    groupData.forEach(storeGroup => {
+      const wrap = document.createElement('div');
+      wrap.className = 'penetration-store-group';
+      const title = document.createElement('div');
+      title.className = 'penetration-store-title';
+      title.textContent = storeGroup.store;
+      wrap.appendChild(title);
+
+      const tblWrap = document.createElement('div');
+      tblWrap.className = 'table-wrap';
+      const table = document.createElement('table');
+      table.className = 'penetration-table';
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th rowspan="2">姓名</th>
+            <th rowspan="2">月病例量</th>
+            <th rowspan="2">个人总业绩</th>
+            <th class="sub-head" colspan="2">门诊</th>
+            <th class="sub-head" colspan="2">住院</th>
+            <th class="sub-head" colspan="2">手术</th>
+            <th class="sub-head" colspan="2">化验</th>
+            <th class="sub-head" colspan="2">X光</th>
+            <th class="sub-head" colspan="2">CT</th>
+            <th class="sub-head" colspan="2">B超</th>
+          </tr>
+          <tr>
+            <th class="sub-head">金额</th><th class="sub-head">占比</th>
+            <th class="sub-head">金额</th><th class="sub-head">占比</th>
+            <th class="sub-head">金额</th><th class="sub-head">占比</th>
+            <th class="sub-head">金额</th><th class="sub-head">占比</th>
+            <th class="sub-head">数量</th><th class="sub-head">渗透率</th>
+            <th class="sub-head">数量</th><th class="sub-head">渗透率</th>
+            <th class="sub-head">数量</th><th class="sub-head">渗透率</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+      const tbody = table.querySelector('tbody');
+      storeGroup.doctors.forEach(d => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${d.name}</strong></td>
+          <td>${fmtN(d.cases)}</td>
+          <td class="amount">${fmtAmt(d.total)}</td>
+          <td>${fmtAmt(d.out)}</td><td class="pct blue">${fmtPct(d.outPct)}</td>
+          <td>${fmtAmt(d.in)}</td><td class="pct pink">${fmtPct(d.inPct)}</td>
+          <td>${fmtAmt(d.surg)}</td><td class="pct orange">${fmtPct(d.surgPct)}</td>
+          <td>${fmtAmt(d.lab)}</td><td class="pct green">${fmtPct(d.labPct)}</td>
+          <td>${fmtN(d.xray)}</td><td class="pct purple">${fmtPct(d.xrayPct)}</td>
+          <td>${fmtN(d.ct)}</td><td class="pct purple">${fmtPct(d.ctPct)}</td>
+          <td>${fmtN(d.b)}</td><td class="pct cyan">${fmtPct(d.bPct)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      tblWrap.appendChild(table);
+      wrap.appendChild(tblWrap);
+      container.appendChild(wrap);
+    });
+  }
+
+  buildGroupTable(PENETRATION_DATA.exotic, 'exoticStoreTables');
+  buildGroupTable(PENETRATION_DATA.dogcat, 'dogcatStoreTables');
+}
+
+(function() {
+  renderPenetrationTables();
 })();
 
 // ====== ANIMAL CHARTS ======
