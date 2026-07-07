@@ -121,6 +121,8 @@
   .penetration-table tbody tr:hover { background: #eff6ff; }
   .penetration-table .pct { font-weight: 700; color: #dc2626; }
   .penetration-table .amount { font-weight: 600; }
+  .penetration-table .pending-tag { display: inline-block; background: #fef3c7; color: #92400e; font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 4px; margin-left: 4px; vertical-align: middle; }
+  .penetration-table .pending-row { opacity: 0.85; }
   .penetration-note { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; color: #0369a1; font-size: 13px; line-height: 1.7; }
 
   /* Data bar for achievement rate */
@@ -340,7 +342,7 @@
   <div class="chart-card">
     <div class="chart-title">🩺 医生业绩渗透</div>
     <div class="penetration-note">
-      <strong>口径说明：</strong>月病例量 = 按病历卡号去重计数；影像渗透率 = 影像检查数量 ÷ 月病例量；业绩占比 = 各分类实收额 ÷ 个人总业绩。仅统计有业绩目标的开单人，已排除前台/回访等无业绩目标的账号。
+      <strong>口径说明：</strong>月病例量 = 按病历卡号去重计数；影像渗透率 = 影像检查数量 ÷ 月病例量；业绩占比 = 各分类实收额 ÷ 个人总业绩。包含有业绩目标和目标待定的开单人，已排除前台/回访等无业绩目标的账号。<span class="pending-tag">待定</span> 表示业绩目标待定的医生。
     </div>
   </div>
 
@@ -578,28 +580,43 @@ const PENETRATION_DATA = {
 
 // ====== DOCTOR PENETRATION DATA (医生业绩渗透) ======
 const DOCTOR_PENETRATION_DATA = [
-  { store: '成都异宠', doctor: '帅敏', cases: 31, xray: 17, xrayPct: 54.8, ct: 1, ctPct: 3.2, b: 0, bPct: 0, total: 20401.77, out: 9204.52, outPct: 45.1, in: 290, inPct: 1.4, surg: 3274.24, surgPct: 16.0, lab: 2885.02, labPct: 14.1 },
-  { store: '成都异宠', doctor: '阎雪松', cases: 44, xray: 6, xrayPct: 13.6, ct: 4, ctPct: 9.1, b: 0, bPct: 0, total: 27661.0, out: 10005.64, outPct: 36.2, in: 3250.01, inPct: 11.7, surg: 4729.83, surgPct: 17.1, lab: 5650.0, labPct: 20.4 },
-  { store: '成都异宠', doctor: '杨阳', cases: 15, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 4554.23, out: 1049.23, outPct: 23.0, in: 3385.0, inPct: 74.3, surg: 0, surgPct: 0, lab: 120.0, labPct: 2.6 },
-  { store: '成都异宠', doctor: '王鑫', cases: 11, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 9073.0, out: 1365.0, outPct: 15.0, in: 7048.0, inPct: 77.7, surg: 0, surgPct: 0, lab: 660.0, labPct: 7.3 },
-  { store: '上海异宠', doctor: '翁治天', cases: 19, xray: 5, xrayPct: 26.3, ct: 6, ctPct: 31.6, b: 0, bPct: 0, total: 22741.49, out: 9120.71, outPct: 40.1, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 4453.0, labPct: 19.6 },
-  { store: '上海异宠', doctor: '陆越', cases: 42, xray: 9, xrayPct: 21.4, ct: 10, ctPct: 23.8, b: 0, bPct: 0, total: 32803.0, out: 14859.07, outPct: 45.3, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 6226.8, labPct: 19.0 },
-  { store: '上海异宠', doctor: '张弦', cases: 33, xray: 6, xrayPct: 18.2, ct: 4, ctPct: 12.1, b: 1, bPct: 3.0, total: 18865.1, out: 6555.02, outPct: 34.7, in: 2340.0, inPct: 12.4, surg: 0, surgPct: 0, lab: 4478.92, labPct: 23.7 },
-  { store: '上海异宠', doctor: '李淼鑫', cases: 23, xray: 2, xrayPct: 8.7, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 12628.51, out: 4497.19, outPct: 35.6, in: 5830.0, inPct: 46.2, surg: 0, surgPct: 0, lab: 1861.32, labPct: 14.7 },
-  { store: '海珠重症', doctor: '朱自洲', cases: 5, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 4297.84, out: 3975.34, outPct: 92.5, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 322.5, labPct: 7.5 },
-  { store: '海珠夜间', doctor: '何骏贤', cases: 14, xray: 20, xrayPct: 142.9, ct: 0, ctPct: 0, b: 2, bPct: 14.3, total: 21125.0, out: 15129.0, outPct: 71.6, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 3796.0, labPct: 18.0 },
-  { store: '海珠夜间', doctor: '林志轩', cases: 2, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 1234.0, out: 612.0, outPct: 49.6, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 622.0, labPct: 50.4 },
-  { store: '顺德中心', doctor: '何慧妍', cases: 22, xray: 8, xrayPct: 36.4, ct: 0, ctPct: 0, b: 5, bPct: 22.7, total: 11682.44, out: 4150.73, outPct: 35.5, in: 3283.0, inPct: 28.1, surg: 0, surgPct: 0, lab: 2578.01, labPct: 22.1 },
-  { store: '顺德中心', doctor: '张迪雄', cases: 22, xray: 6, xrayPct: 27.3, ct: 4, ctPct: 18.2, b: 6, bPct: 27.3, total: 17937.64, out: 3316.94, outPct: 18.5, in: 0, inPct: 0, surg: 7886.73, surgPct: 44.0, lab: 2266.14, labPct: 12.6 },
-  { store: '顺德中心', doctor: '陈佩玲', cases: 20, xray: 20, xrayPct: 100.0, ct: 0, ctPct: 0, b: 7, bPct: 35.0, total: 22348.7, out: 6583.89, outPct: 29.5, in: 5321.01, inPct: 23.8, surg: 0, surgPct: 0, lab: 9028.81, labPct: 40.4 },
-  { store: '顺德中心', doctor: '杨沁颖', cases: 26, xray: 15, xrayPct: 57.7, ct: 4, ctPct: 15.4, b: 8, bPct: 30.8, total: 23302.49, out: 8665.03, outPct: 37.2, in: 593.8, inPct: 2.5, surg: 0, surgPct: 0, lab: 8221.77, labPct: 35.3 },
-  { store: '顺德中心', doctor: '朱华君', cases: 24, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 24483.02, out: 22574.45, outPct: 92.2, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 1908.57, labPct: 7.8 },
-  { store: '天河肿瘤', doctor: '凌晓理', cases: 18, xray: 13, xrayPct: 72.2, ct: 4, ctPct: 22.2, b: 4, bPct: 22.2, total: 44856.0, out: 5268.53, outPct: 11.7, in: 1520.0, inPct: 3.4, surg: 28604.26, surgPct: 63.8, lab: 6106.74, labPct: 13.6 },
-  { store: '天河肿瘤', doctor: '黄洁明', cases: 23, xray: 24, xrayPct: 104.3, ct: 7, ctPct: 30.4, b: 8, bPct: 34.8, total: 28388.38, out: 9183.32, outPct: 32.3, in: 0, inPct: 0, surg: 4825.76, surgPct: 17.0, lab: 8340.67, labPct: 29.4 },
-  { store: '天河肿瘤', doctor: '曹洁', cases: 21, xray: 12, xrayPct: 57.1, ct: 0, ctPct: 0, b: 4, bPct: 19.0, total: 27457.58, out: 10155.35, outPct: 37.0, in: 10946.5, inPct: 39.9, surg: 0, surgPct: 0, lab: 5268.61, labPct: 19.2 },
-  { store: '天河肿瘤', doctor: '杨秀碟', cases: 17, xray: 4, xrayPct: 23.5, ct: 0, ctPct: 0, b: 4, bPct: 23.5, total: 13061.54, out: 7033.42, outPct: 53.8, in: 0, inPct: 0, surg: 470.02, surgPct: 3.6, lab: 4711.06, labPct: 36.1 },
-  { store: '天河肿瘤', doctor: '卢舒勉', cases: 10, xray: 4, xrayPct: 40.0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 11037.34, out: 1259.0, outPct: 11.4, in: 7858.96, inPct: 71.2, surg: 0, surgPct: 0, lab: 1679.38, labPct: 15.2 },
-  { store: '天河肿瘤', doctor: '卢恺滢', cases: 5, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 2714.0, out: 16.0, outPct: 0.6, in: 2308.0, inPct: 85.0, surg: 0, surgPct: 0, lab: 390.0, labPct: 14.4 }
+  { store: '成都异宠', doctor: '帅敏', target: 110000, cases: 31, xray: 17, xrayPct: 54.8, ct: 1, ctPct: 3.2, b: 0, bPct: 0, total: 21990.77, out: 10793.52, outPct: 49.1, in: 290, inPct: 1.3, surg: 3274.24, surgPct: 14.9, lab: 2885.02, labPct: 13.1 },
+  { store: '成都异宠', doctor: '杨阳', target: 35000, cases: 15, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 4554.23, out: 1049.23, outPct: 23, in: 3385, inPct: 74.3, surg: 0, surgPct: 0, lab: 120, labPct: 2.6 },
+  { store: '成都异宠', doctor: '王鑫', target: 25000, cases: 11, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 9073, out: 1365, outPct: 15, in: 7048, inPct: 77.7, surg: 0, surgPct: 0, lab: 660, labPct: 7.3 },
+  { store: '成都异宠', doctor: '阎雪松', target: 100000, cases: 44, xray: 6, xrayPct: 13.6, ct: 4, ctPct: 9.1, b: 0, bPct: 0, total: 27661, out: 10005.64, outPct: 36.2, in: 3250.01, inPct: 11.7, surg: 4729.83, surgPct: 17.1, lab: 5650, labPct: 20.4 },
+  { store: '上海异宠', doctor: '张弦', target: 116100, cases: 33, xray: 6, xrayPct: 18.2, ct: 4, ctPct: 12.1, b: 1, bPct: 3, total: 18865.1, out: 6555.02, outPct: 34.7, in: 2340, inPct: 12.4, surg: 0, surgPct: 0, lab: 4478.92, labPct: 23.7 },
+  { store: '上海异宠', doctor: '李淼鑫', target: 34400, cases: 23, xray: 2, xrayPct: 8.7, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 12628.51, out: 4497.19, outPct: 35.6, in: 5830, inPct: 46.2, surg: 0, surgPct: 0, lab: 1861.32, labPct: 14.7 },
+  { store: '上海异宠', doctor: '翁治天', target: 129000, cases: 19, xray: 5, xrayPct: 26.3, ct: 7, ctPct: 36.8, b: 0, bPct: 0, total: 23243.49, out: 9120.71, outPct: 39.2, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 4715, labPct: 20.3 },
+  { store: '上海异宠', doctor: '陆越', target: 150500, cases: 42, xray: 9, xrayPct: 21.4, ct: 10, ctPct: 23.8, b: 0, bPct: 0, total: 32803, out: 14859.07, outPct: 45.3, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 6226.8, labPct: 19 },
+  { store: '北京异宠', doctor: '吕新月', target: '待定', cases: 1, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 151.5, out: 151.5, outPct: 100, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0 },
+  { store: '北京异宠', doctor: '唐国梁', target: '待定', cases: 44, xray: 20, xrayPct: 45.5, ct: 6, ctPct: 13.6, b: 0, bPct: 0, total: 30163, out: 15536, outPct: 51.5, in: 417, inPct: 1.4, surg: 0, surgPct: 0, lab: 4750, labPct: 15.7 },
+  { store: '北京异宠', doctor: '王妍博', target: '待定', cases: 24, xray: 8, xrayPct: 33.3, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 9216, out: 5606, outPct: 60.8, in: 750, inPct: 8.1, surg: 500, surgPct: 5.4, lab: 760, labPct: 8.2 },
+  { store: '天河异宠', doctor: '刘泽鑫', target: '待定', cases: 38, xray: 38, xrayPct: 100, ct: 3, ctPct: 7.9, b: 0, bPct: 0, total: 22235, out: 5062.14, outPct: 22.8, in: 0, inPct: 0, surg: 9938.88, surgPct: 44.7, lab: 2293.69, labPct: 10.3 },
+  { store: '天河异宠', doctor: '罗振宇', target: '待定', cases: 9, xray: 6, xrayPct: 66.7, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 6041.5, out: 285.5, outPct: 4.7, in: 5060, inPct: 83.8, surg: 0, surgPct: 0, lab: 276, labPct: 4.6 },
+  { store: '天河异宠', doctor: '谢冠晖', target: '待定', cases: 17, xray: 14, xrayPct: 82.4, ct: 2, ctPct: 11.8, b: 0, bPct: 0, total: 12745, out: 6116.8, outPct: 48, in: 442, inPct: 3.5, surg: 0, surgPct: 0, lab: 3833.77, labPct: 30.1 },
+  { store: '天河异宠', doctor: '邹梓俊', target: '待定', cases: 32, xray: 22, xrayPct: 68.8, ct: 3, ctPct: 9.4, b: 1, bPct: 3.1, total: 30027, out: 6090.62, outPct: 20.3, in: 3072, inPct: 10.2, surg: 7010, surgPct: 23.3, lab: 7643.77, labPct: 25.5 },
+  { store: '天河异宠', doctor: '黄素荃', target: '待定', cases: 12, xray: 12, xrayPct: 100, ct: 1, ctPct: 8.3, b: 0, bPct: 0, total: 10409, out: 775.14, outPct: 7.4, in: 7208, inPct: 69.2, surg: 0, surgPct: 0, lab: 726.05, labPct: 7 },
+  { store: '海珠重症', doctor: '何家杰', target: '待定', cases: 16, xray: 8, xrayPct: 50, ct: 4, ctPct: 25, b: 3, bPct: 18.8, total: 12840, out: 4030.79, outPct: 31.4, in: 0, inPct: 0, surg: 2991.65, surgPct: 23.3, lab: 2258.95, labPct: 17.6 },
+  { store: '海珠重症', doctor: '叶志斌', target: '待定', cases: 20, xray: 4, xrayPct: 20, ct: 3, ctPct: 15, b: 2, bPct: 10, total: 16284, out: 3119.18, outPct: 19.2, in: 0, inPct: 0, surg: 3632.23, surgPct: 22.3, lab: 6317.8, labPct: 38.8 },
+  { store: '海珠重症', doctor: '张飏', target: '待定', cases: 35, xray: 4, xrayPct: 11.4, ct: 15, ctPct: 42.9, b: 6, bPct: 17.1, total: 33709.3, out: 13330.59, outPct: 39.5, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 10293.21, labPct: 30.5 },
+  { store: '海珠重症', doctor: '朱自洲', target: 80000, cases: 5, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 4297.84, out: 3975.34, outPct: 92.5, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 322.5, labPct: 7.5 },
+  { store: '海珠重症', doctor: '李泽贤', target: '待定', cases: 28, xray: 28, xrayPct: 100, ct: 6, ctPct: 21.4, b: 12, bPct: 42.9, total: 44727.94, out: 6214.84, outPct: 13.9, in: 0, inPct: 0, surg: 16998.32, surgPct: 38, lab: 11603.12, labPct: 25.9 },
+  { store: '海珠重症', doctor: '林倩华', target: '待定', cases: 19, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 3, bPct: 15.8, total: 33213.02, out: 1872.92, outPct: 5.6, in: 23226.1, inPct: 69.9, surg: 0, surgPct: 0, lab: 7334, labPct: 22.1 },
+  { store: '海珠重症', doctor: '董继凤', target: '待定', cases: 20, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 30464.48, out: 2472.48, outPct: 8.1, in: 25812, inPct: 84.7, surg: 0, surgPct: 0, lab: 2180, labPct: 7.2 },
+  { store: '海珠重症', doctor: '黄妙容', target: '待定', cases: 1, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 124, out: 0, outPct: 0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 124, labPct: 100 },
+  { store: '海珠夜间', doctor: '何骏贤', target: 80000, cases: 14, xray: 20, xrayPct: 142.9, ct: 0, ctPct: 0, b: 2, bPct: 14.3, total: 21125, out: 15129, outPct: 71.6, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 3796, labPct: 18 },
+  { store: '海珠夜间', doctor: '林志轩', target: 30000, cases: 2, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 1234, out: 612, outPct: 49.6, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 622, labPct: 50.4 },
+  { store: '顺德中心', doctor: '何慧妍', target: 95923, cases: 22, xray: 8, xrayPct: 36.4, ct: 0, ctPct: 0, b: 5, bPct: 22.7, total: 11718.44, out: 4186.73, outPct: 35.7, in: 3283, inPct: 28, surg: 0, surgPct: 0, lab: 2578.01, labPct: 22 },
+  { store: '顺德中心', doctor: '张迪雄', target: 122885, cases: 22, xray: 6, xrayPct: 27.3, ct: 4, ctPct: 18.2, b: 6, bPct: 27.3, total: 17937.64, out: 3316.94, outPct: 18.5, in: 0, inPct: 0, surg: 7886.73, surgPct: 44, lab: 2266.14, labPct: 12.6 },
+  { store: '顺德中心', doctor: '朱华君', target: 95923, cases: 24, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 24483.02, out: 22574.45, outPct: 92.2, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 1908.57, labPct: 7.8 },
+  { store: '顺德中心', doctor: '杨沁颖', target: 111996, cases: 26, xray: 19, xrayPct: 73.1, ct: 4, ctPct: 15.4, b: 9, bPct: 34.6, total: 25152.49, out: 8731.03, outPct: 34.7, in: 593.8, inPct: 2.4, surg: 0, surgPct: 0, lab: 9265.77, labPct: 36.8 },
+  { store: '顺德中心', doctor: '陈佩玲', target: 122885, cases: 20, xray: 20, xrayPct: 100, ct: 0, ctPct: 0, b: 7, bPct: 35, total: 22678.7, out: 6913.89, outPct: 30.5, in: 5321.01, inPct: 23.5, surg: 0, surgPct: 0, lab: 9028.81, labPct: 39.8 },
+  { store: '天河肿瘤', doctor: '凌晓理', target: 170000, cases: 18, xray: 13, xrayPct: 72.2, ct: 4, ctPct: 22.2, b: 4, bPct: 22.2, total: 44856, out: 5268.53, outPct: 11.7, in: 1520, inPct: 3.4, surg: 28604.26, surgPct: 63.8, lab: 6106.74, labPct: 13.6 },
+  { store: '天河肿瘤', doctor: '卢恺滢', target: 55000, cases: 5, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 2714, out: 16, outPct: 0.6, in: 2308, inPct: 85, surg: 0, surgPct: 0, lab: 390, labPct: 14.4 },
+  { store: '天河肿瘤', doctor: '卢舒勉', target: 55000, cases: 10, xray: 4, xrayPct: 40, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 12607.73, out: 1531.39, outPct: 12.1, in: 8936.96, inPct: 70.9, surg: 0, surgPct: 0, lab: 1899.38, labPct: 15.1 },
+  { store: '天河肿瘤', doctor: '曹洁', target: 130000, cases: 21, xray: 12, xrayPct: 57.1, ct: 0, ctPct: 0, b: 4, bPct: 19, total: 29274.58, out: 11972.35, outPct: 40.9, in: 10946.5, inPct: 37.4, surg: 0, surgPct: 0, lab: 5268.61, labPct: 18 },
+  { store: '天河肿瘤', doctor: '杨秀碟', target: 80000, cases: 17, xray: 4, xrayPct: 23.5, ct: 0, ctPct: 0, b: 4, bPct: 23.5, total: 13061.54, out: 7033.42, outPct: 53.8, in: 0, inPct: 0, surg: 470.02, surgPct: 3.6, lab: 4711.06, labPct: 36.1 },
+  { store: '天河肿瘤', doctor: '黄洁明', target: 160000, cases: 23, xray: 24, xrayPct: 104.3, ct: 7, ctPct: 30.4, b: 8, bPct: 34.8, total: 28443.38, out: 9238.32, outPct: 32.5, in: 0, inPct: 0, surg: 4825.76, surgPct: 17, lab: 8340.67, labPct: 29.3 }
 ];
 const doughnutPercentPlugin = {
   id: 'doughnutPercent',
@@ -1095,6 +1112,14 @@ function renderDoctorPenTables() {
   function fmtN(n) { return n % 1 === 0 ? n.toFixed(0) : n.toFixed(1); }
   function fmtAmt(n) { return '¥' + (n >= 10000 ? (n/10000).toFixed(1) + '万' : n.toFixed(0)); }
   function fmtPct(n) { return n.toFixed(1) + '%'; }
+  function fmtTarget(t) {
+    if (typeof t === 'string') return '<span class="pending-tag">' + t + '</span>';
+    return fmtAmt(t);
+  }
+  function doctorName(d) {
+    if (typeof d.target === 'string') return d.doctor + '<span class="pending-tag">（' + d.target + '）</span>';
+    return d.doctor;
+  }
 
   function buildDoctorImgTable(data, tableId) {
     const table = document.getElementById(tableId);
@@ -1114,9 +1139,9 @@ function renderDoctorPenTables() {
       </thead>
       <tbody>
         ${data.map(d => `
-          <tr>
+          <tr${typeof d.target === 'string' ? ' class="pending-row"' : ''}>
             <td>${d.store}</td>
-            <td><strong>${d.doctor}</strong></td>
+            <td><strong>${doctorName(d)}</strong></td>
             <td>${fmtN(d.cases)}</td>
             <td>${fmtN(d.xray)}</td>
             <td class="pct">${fmtPct(d.xrayPct)}</td>
@@ -1137,6 +1162,7 @@ function renderDoctorPenTables() {
         <tr>
           <th>分院</th>
           <th>医生</th>
+          <th>业绩目标</th>
           <th>总业绩</th>
           <th>门诊业绩</th>
           <th>门诊占比</th>
@@ -1150,9 +1176,10 @@ function renderDoctorPenTables() {
       </thead>
       <tbody>
         ${data.map(d => `
-          <tr>
+          <tr${typeof d.target === 'string' ? ' class="pending-row"' : ''}>
             <td>${d.store}</td>
-            <td><strong>${d.doctor}</strong></td>
+            <td><strong>${doctorName(d)}</strong></td>
+            <td>${fmtTarget(d.target)}</td>
             <td class="amount">${fmtAmt(d.total)}</td>
             <td class="amount">${fmtAmt(d.out)}</td>
             <td class="pct">${fmtPct(d.outPct)}</td>
