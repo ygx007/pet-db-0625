@@ -162,6 +162,7 @@
   <div class="nav-tab" onclick="showTab('category')">📋 业绩分类</div>
   <div class="nav-tab" onclick="showTab('animal')">🐾 动物种类</div>
   <div class="nav-tab" onclick="showTab('penetration')">💉 医院业绩渗透率对比</div>
+  <div class="nav-tab" onclick="showTab('doctorPen')">🩺 医生业绩渗透</div>
 </div>
 
 <!-- ==================== TAB 1: 总览 ==================== -->
@@ -329,6 +330,46 @@
       <div class="penetration-section">
         <div class="penetration-section-title">💰 业绩分类占比</div>
         <div class="table-wrap"><table class="penetration-table" id="dogcatAmtTable"></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 7: 医生业绩渗透 ==================== -->
+<div id="tab-doctorPen" class="section">
+  <div class="chart-card">
+    <div class="chart-title">🩺 医生业绩渗透</div>
+    <div class="penetration-note">
+      <strong>口径说明：</strong>月病例量 = 按病历卡号去重计数；影像渗透率 = 影像检查数量 ÷ 月病例量；业绩占比 = 各分类实收额 ÷ 个人总业绩。仅统计有业绩目标的开单人，已排除前台/回访等无业绩目标的账号。
+    </div>
+  </div>
+
+  <!-- 异宠门店医生 -->
+  <div class="chart-card">
+    <div class="chart-title">🦜 异宠门店医生</div>
+    <div class="penetration-tables">
+      <div class="penetration-section">
+        <div class="penetration-section-title">📊 影像检查渗透率</div>
+        <div class="table-wrap"><table class="penetration-table" id="doctorImgExoticTable"></table></div>
+      </div>
+      <div class="penetration-section">
+        <div class="penetration-section-title">💰 业绩分类占比</div>
+        <div class="table-wrap"><table class="penetration-table" id="doctorAmtExoticTable"></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 犬猫门店医生 -->
+  <div class="chart-card">
+    <div class="chart-title">🐕 犬猫门店医生</div>
+    <div class="penetration-tables">
+      <div class="penetration-section">
+        <div class="penetration-section-title">📊 影像检查渗透率</div>
+        <div class="table-wrap"><table class="penetration-table" id="doctorImgDogcatTable"></table></div>
+      </div>
+      <div class="penetration-section">
+        <div class="penetration-section-title">💰 业绩分类占比</div>
+        <div class="table-wrap"><table class="penetration-table" id="doctorAmtDogcatTable"></table></div>
       </div>
     </div>
   </div>
@@ -535,7 +576,31 @@ const PENETRATION_DATA = {
   ]
 };
 
-// ====== Custom Plugin: Doughnut Percentage Labels ======
+// ====== DOCTOR PENETRATION DATA (医生业绩渗透) ======
+const DOCTOR_PENETRATION_DATA = [
+  { store: '成都异宠', doctor: '帅敏', cases: 31, xray: 17, xrayPct: 54.8, ct: 1, ctPct: 3.2, b: 0, bPct: 0, total: 20401.77, out: 9204.52, outPct: 45.1, in: 290, inPct: 1.4, surg: 3274.24, surgPct: 16.0, lab: 2885.02, labPct: 14.1 },
+  { store: '成都异宠', doctor: '阎雪松', cases: 44, xray: 6, xrayPct: 13.6, ct: 4, ctPct: 9.1, b: 0, bPct: 0, total: 27661.0, out: 10005.64, outPct: 36.2, in: 3250.01, inPct: 11.7, surg: 4729.83, surgPct: 17.1, lab: 5650.0, labPct: 20.4 },
+  { store: '成都异宠', doctor: '杨阳', cases: 15, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 4554.23, out: 1049.23, outPct: 23.0, in: 3385.0, inPct: 74.3, surg: 0, surgPct: 0, lab: 120.0, labPct: 2.6 },
+  { store: '成都异宠', doctor: '王鑫', cases: 11, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 9073.0, out: 1365.0, outPct: 15.0, in: 7048.0, inPct: 77.7, surg: 0, surgPct: 0, lab: 660.0, labPct: 7.3 },
+  { store: '上海异宠', doctor: '翁治天', cases: 19, xray: 5, xrayPct: 26.3, ct: 6, ctPct: 31.6, b: 0, bPct: 0, total: 22741.49, out: 9120.71, outPct: 40.1, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 4453.0, labPct: 19.6 },
+  { store: '上海异宠', doctor: '陆越', cases: 42, xray: 9, xrayPct: 21.4, ct: 10, ctPct: 23.8, b: 0, bPct: 0, total: 32803.0, out: 14859.07, outPct: 45.3, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 6226.8, labPct: 19.0 },
+  { store: '上海异宠', doctor: '张弦', cases: 33, xray: 6, xrayPct: 18.2, ct: 4, ctPct: 12.1, b: 1, bPct: 3.0, total: 18865.1, out: 6555.02, outPct: 34.7, in: 2340.0, inPct: 12.4, surg: 0, surgPct: 0, lab: 4478.92, labPct: 23.7 },
+  { store: '上海异宠', doctor: '李淼鑫', cases: 23, xray: 2, xrayPct: 8.7, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 12628.51, out: 4497.19, outPct: 35.6, in: 5830.0, inPct: 46.2, surg: 0, surgPct: 0, lab: 1861.32, labPct: 14.7 },
+  { store: '海珠重症', doctor: '朱自洲', cases: 5, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 4297.84, out: 3975.34, outPct: 92.5, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 322.5, labPct: 7.5 },
+  { store: '海珠夜间', doctor: '何骏贤', cases: 14, xray: 20, xrayPct: 142.9, ct: 0, ctPct: 0, b: 2, bPct: 14.3, total: 21125.0, out: 15129.0, outPct: 71.6, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 3796.0, labPct: 18.0 },
+  { store: '海珠夜间', doctor: '林志轩', cases: 2, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 1234.0, out: 612.0, outPct: 49.6, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 622.0, labPct: 50.4 },
+  { store: '顺德中心', doctor: '何慧妍', cases: 22, xray: 8, xrayPct: 36.4, ct: 0, ctPct: 0, b: 5, bPct: 22.7, total: 11682.44, out: 4150.73, outPct: 35.5, in: 3283.0, inPct: 28.1, surg: 0, surgPct: 0, lab: 2578.01, labPct: 22.1 },
+  { store: '顺德中心', doctor: '张迪雄', cases: 22, xray: 6, xrayPct: 27.3, ct: 4, ctPct: 18.2, b: 6, bPct: 27.3, total: 17937.64, out: 3316.94, outPct: 18.5, in: 0, inPct: 0, surg: 7886.73, surgPct: 44.0, lab: 2266.14, labPct: 12.6 },
+  { store: '顺德中心', doctor: '陈佩玲', cases: 20, xray: 20, xrayPct: 100.0, ct: 0, ctPct: 0, b: 7, bPct: 35.0, total: 22348.7, out: 6583.89, outPct: 29.5, in: 5321.01, inPct: 23.8, surg: 0, surgPct: 0, lab: 9028.81, labPct: 40.4 },
+  { store: '顺德中心', doctor: '杨沁颖', cases: 26, xray: 15, xrayPct: 57.7, ct: 4, ctPct: 15.4, b: 8, bPct: 30.8, total: 23302.49, out: 8665.03, outPct: 37.2, in: 593.8, inPct: 2.5, surg: 0, surgPct: 0, lab: 8221.77, labPct: 35.3 },
+  { store: '顺德中心', doctor: '朱华君', cases: 24, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 24483.02, out: 22574.45, outPct: 92.2, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 1908.57, labPct: 7.8 },
+  { store: '天河肿瘤', doctor: '凌晓理', cases: 18, xray: 13, xrayPct: 72.2, ct: 4, ctPct: 22.2, b: 4, bPct: 22.2, total: 44856.0, out: 5268.53, outPct: 11.7, in: 1520.0, inPct: 3.4, surg: 28604.26, surgPct: 63.8, lab: 6106.74, labPct: 13.6 },
+  { store: '天河肿瘤', doctor: '黄洁明', cases: 23, xray: 24, xrayPct: 104.3, ct: 7, ctPct: 30.4, b: 8, bPct: 34.8, total: 28388.38, out: 9183.32, outPct: 32.3, in: 0, inPct: 0, surg: 4825.76, surgPct: 17.0, lab: 8340.67, labPct: 29.4 },
+  { store: '天河肿瘤', doctor: '曹洁', cases: 21, xray: 12, xrayPct: 57.1, ct: 0, ctPct: 0, b: 4, bPct: 19.0, total: 27457.58, out: 10155.35, outPct: 37.0, in: 10946.5, inPct: 39.9, surg: 0, surgPct: 0, lab: 5268.61, labPct: 19.2 },
+  { store: '天河肿瘤', doctor: '杨秀碟', cases: 17, xray: 4, xrayPct: 23.5, ct: 0, ctPct: 0, b: 4, bPct: 23.5, total: 13061.54, out: 7033.42, outPct: 53.8, in: 0, inPct: 0, surg: 470.02, surgPct: 3.6, lab: 4711.06, labPct: 36.1 },
+  { store: '天河肿瘤', doctor: '卢舒勉', cases: 10, xray: 4, xrayPct: 40.0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 11037.34, out: 1259.0, outPct: 11.4, in: 7858.96, inPct: 71.2, surg: 0, surgPct: 0, lab: 1679.38, labPct: 15.2 },
+  { store: '天河肿瘤', doctor: '卢恺滢', cases: 5, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 2714.0, out: 16.0, outPct: 0.6, in: 2308.0, inPct: 85.0, surg: 0, surgPct: 0, lab: 390.0, labPct: 14.4 }
+];
 const doughnutPercentPlugin = {
   id: 'doughnutPercent',
   afterDatasetsDraw(chart) {
@@ -1023,6 +1088,101 @@ function renderPenetrationTables() {
 
 (function() {
   renderPenetrationTables();
+})();
+
+// ====== DOCTOR PENETRATION TABLES ======
+function renderDoctorPenTables() {
+  function fmtN(n) { return n % 1 === 0 ? n.toFixed(0) : n.toFixed(1); }
+  function fmtAmt(n) { return '¥' + (n >= 10000 ? (n/10000).toFixed(1) + '万' : n.toFixed(0)); }
+  function fmtPct(n) { return n.toFixed(1) + '%'; }
+
+  function buildDoctorImgTable(data, tableId) {
+    const table = document.getElementById(tableId);
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>分院</th>
+          <th>医生</th>
+          <th>月病例量</th>
+          <th>X光数量</th>
+          <th>X光渗透率</th>
+          <th>CT数量</th>
+          <th>CT渗透率</th>
+          <th>B超数量</th>
+          <th>B超渗透率</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.map(d => `
+          <tr>
+            <td>${d.store}</td>
+            <td><strong>${d.doctor}</strong></td>
+            <td>${fmtN(d.cases)}</td>
+            <td>${fmtN(d.xray)}</td>
+            <td class="pct">${fmtPct(d.xrayPct)}</td>
+            <td>${fmtN(d.ct)}</td>
+            <td class="pct">${fmtPct(d.ctPct)}</td>
+            <td>${fmtN(d.b)}</td>
+            <td class="pct">${fmtPct(d.bPct)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+  }
+
+  function buildDoctorAmtTable(data, tableId) {
+    const table = document.getElementById(tableId);
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>分院</th>
+          <th>医生</th>
+          <th>总业绩</th>
+          <th>门诊业绩</th>
+          <th>门诊占比</th>
+          <th>住院业绩</th>
+          <th>住院占比</th>
+          <th>手术业绩</th>
+          <th>手术占比</th>
+          <th>化验业绩</th>
+          <th>化验占比</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.map(d => `
+          <tr>
+            <td>${d.store}</td>
+            <td><strong>${d.doctor}</strong></td>
+            <td class="amount">${fmtAmt(d.total)}</td>
+            <td class="amount">${fmtAmt(d.out)}</td>
+            <td class="pct">${fmtPct(d.outPct)}</td>
+            <td class="amount">${fmtAmt(d.in)}</td>
+            <td class="pct">${fmtPct(d.inPct)}</td>
+            <td class="amount">${fmtAmt(d.surg)}</td>
+            <td class="pct">${fmtPct(d.surgPct)}</td>
+            <td class="amount">${fmtAmt(d.lab)}</td>
+            <td class="pct">${fmtPct(d.labPct)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+  }
+
+  // Split by store groups
+  const exoticStores = ['天河异宠','成都异宠','上海异宠','北京异宠'];
+  const dogcatStores = ['顺德中心','天河肿瘤','海珠重症','海珠夜间'];
+
+  const exoticDoctors = DOCTOR_PENETRATION_DATA.filter(d => exoticStores.includes(d.store));
+  const dogcatDoctors = DOCTOR_PENETRATION_DATA.filter(d => dogcatStores.includes(d.store));
+
+  buildDoctorImgTable(exoticDoctors, 'doctorImgExoticTable');
+  buildDoctorAmtTable(exoticDoctors, 'doctorAmtExoticTable');
+  buildDoctorImgTable(dogcatDoctors, 'doctorImgDogcatTable');
+  buildDoctorAmtTable(dogcatDoctors, 'doctorAmtDogcatTable');
+}
+
+(function() {
+  renderDoctorPenTables();
 })();
 
 // ====== ANIMAL CHARTS ======
