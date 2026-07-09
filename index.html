@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>业绩分析仪表盘 · 截止2026年7月6日</title>
+<title>业绩分析仪表盘 · 截止2026年7月7日</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -107,24 +107,6 @@
   .pw-box .pw-btn:hover { background: #2563eb; }
   .pw-error { color: #ef4444; font-size: 13px; margin-top: 12px; display: none; }
 
-  /* Penetration tables - centered */
-  .penetration-section { margin-bottom: 24px; }
-  .penetration-section-title { font-size: 17px; font-weight: 700; color: #1e293b; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
-  .penetration-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (max-width: 1100px) { .penetration-tables { grid-template-columns: 1fr; } }
-  .penetration-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
-  .penetration-table th, .penetration-table td { padding: 11px 8px; text-align: center !important; border: 1px solid #e2e8f0; }
-  .penetration-table th { background: #f8fafc; color: #1a1a1a; font-weight: 700; }
-  .penetration-table thead tr:first-child th { background: #f8fafc; color: #1a1a1a; font-size: 13px; }
-  .penetration-table .sub-head { background: #f1f5f9; color: #64748b; font-size: 12px; }
-  .penetration-table tbody tr:nth-child(even) { background: #f8fafc; }
-  .penetration-table tbody tr:hover { background: #eff6ff; }
-  .penetration-table .pct { font-weight: 700; color: #dc2626; }
-  .penetration-table .amount { font-weight: 600; }
-  .penetration-table .pending-tag { display: inline-block; background: #fef3c7; color: #92400e; font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 4px; margin-left: 4px; vertical-align: middle; }
-  .penetration-table .pending-row { opacity: 0.85; }
-  .penetration-note { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; color: #0369a1; font-size: 13px; line-height: 1.7; }
-
   /* Data bar for achievement rate */
   .rate-bar-cell { position: relative; min-width: 160px; }
   .rate-bar-bg { position: relative; height: 26px; border-radius: 6px; background: #f1f5f9; overflow: hidden; }
@@ -154,7 +136,7 @@
     <h1>🏥 宠物医院业绩分析仪表盘</h1>
     <div class="subtitle">数据范围：2026-07-01 至 2026-07-05 · 共 8 家门店</div>
   </div>
-  <div class="date-badge">📅 截止 2026年7月6日</div>
+  <div class="date-badge">📅 截止 2026年7月7日</div>
 </div>
 
 <div class="nav">
@@ -163,8 +145,6 @@
   <div class="nav-tab" onclick="showTab('doctor')">👨‍⚕️ 开单人排名</div>
   <div class="nav-tab" onclick="showTab('category')">📋 业绩分类</div>
   <div class="nav-tab" onclick="showTab('animal')">🐾 动物种类</div>
-  <div class="nav-tab" onclick="showTab('penetration')">💉 医院业绩渗透率对比</div>
-  <div class="nav-tab" onclick="showTab('doctorPen')">🩺 医生业绩渗透</div>
 </div>
 
 <!-- ==================== TAB 1: 总览 ==================== -->
@@ -172,23 +152,23 @@
   <div class="kpi-grid">
     <div class="kpi-card blue">
       <div class="kpi-label">总账单数</div>
-      <div class="kpi-value">6,871</div>
+      <div class="kpi-value">9,424</div>
       <div class="kpi-sub">条流水记录</div>
     </div>
     <div class="kpi-card green">
       <div class="kpi-label">总实收额</div>
-      <div class="kpi-value">¥70.1万</div>
-      <div class="kpi-sub">609,026.92 元</div>
+      <div class="kpi-value">¥97.1万</div>
+      <div class="kpi-sub">971,363.50 元</div>
     </div>
     <div class="kpi-card purple">
       <div class="kpi-label">参与门店数</div>
       <div class="kpi-value">8 家</div>
-      <div class="kpi-sub">店均 ¥8.8万</div>
+      <div class="kpi-sub">店均 ¥12.1万</div>
     </div>
     <div class="kpi-card orange">
       <div class="kpi-label">数据跨度</div>
-      <div class="kpi-value">6 天</div>
-      <div class="kpi-sub">7月1日 — 7月5日</div>
+      <div class="kpi-value">8 天</div>
+      <div class="kpi-sub">7月1日 — 7月8日</div>
     </div>
   </div>
 
@@ -206,7 +186,7 @@
 
   <!-- 业绩达标率（8个圆环图） -->
   <div class="chart-card">
-    <div class="chart-title">各门店业绩达标率（截止7.6）</div>
+    <div class="chart-title">各门店业绩达标率（截止7.8）</div>
     <div class="donut-grid" id="targetDonutGrid"></div>
   </div>
 
@@ -297,249 +277,173 @@
   </div>
 </div>
 
-<!-- ==================== TAB 6: 医院业绩渗透率对比 ==================== -->
-<div id="tab-penetration" class="section">
-  <div class="chart-card">
-    <div class="chart-title">🏥 医院业绩渗透率对比</div>
-    <div class="penetration-note">
-      <strong>口径说明：</strong>月病例量 = 按病历卡号去重计数；影像渗透率 = 影像检查数量 ÷ 月病例量；业绩占比 = 各分类实收额 ÷ 分院总业绩。已排除前台/回访等无业绩目标的账号。
-    </div>
-  </div>
-
-  <!-- 异宠门店对比 -->
-  <div class="chart-card">
-    <div class="chart-title">🦜 异宠门店对比（天河/成都/上海/北京）</div>
-    <div class="penetration-tables">
-      <div class="penetration-section">
-        <div class="penetration-section-title">📊 影像检查渗透率</div>
-        <div class="table-wrap"><table class="penetration-table" id="exoticImgTable"></table></div>
-      </div>
-      <div class="penetration-section">
-        <div class="penetration-section-title">💰 业绩分类占比</div>
-        <div class="table-wrap"><table class="penetration-table" id="exoticAmtTable"></table></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 犬猫门店对比 -->
-  <div class="chart-card">
-    <div class="chart-title">🐕 犬猫门店对比（顺德/天河肿瘤/海珠重症/海珠夜间）</div>
-    <div class="penetration-tables">
-      <div class="penetration-section">
-        <div class="penetration-section-title">📊 影像检查渗透率</div>
-        <div class="table-wrap"><table class="penetration-table" id="dogcatImgTable"></table></div>
-      </div>
-      <div class="penetration-section">
-        <div class="penetration-section-title">💰 业绩分类占比</div>
-        <div class="table-wrap"><table class="penetration-table" id="dogcatAmtTable"></table></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== TAB 7: 医生业绩渗透 ==================== -->
-<div id="tab-doctorPen" class="section">
-  <div class="chart-card">
-    <div class="chart-title">🩺 医生业绩渗透</div>
-    <div class="penetration-note">
-      <strong>口径说明：</strong>月病例量 = 按病历卡号去重计数；影像渗透率 = 影像检查数量 ÷ 月病例量；业绩占比 = 各分类实收额 ÷ 个人总业绩。包含有业绩目标和目标待定的开单人，已排除前台/回访等无业绩目标的账号。<span class="pending-tag">待定</span> 表示业绩目标待定的医生。
-    </div>
-  </div>
-
-  <!-- 异宠门店医生 -->
-  <div class="chart-card">
-    <div class="chart-title">🦜 异宠门店医生</div>
-    <div class="penetration-tables">
-      <div class="penetration-section">
-        <div class="penetration-section-title">📊 影像检查渗透率</div>
-        <div class="table-wrap"><table class="penetration-table" id="doctorImgExoticTable"></table></div>
-      </div>
-      <div class="penetration-section">
-        <div class="penetration-section-title">💰 业绩分类占比</div>
-        <div class="table-wrap"><table class="penetration-table" id="doctorAmtExoticTable"></table></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 犬猫门店医生 -->
-  <div class="chart-card">
-    <div class="chart-title">🐕 犬猫门店医生</div>
-    <div class="penetration-tables">
-      <div class="penetration-section">
-        <div class="penetration-section-title">📊 影像检查渗透率</div>
-        <div class="table-wrap"><table class="penetration-table" id="doctorImgDogcatTable"></table></div>
-      </div>
-      <div class="penetration-section">
-        <div class="penetration-section-title">💰 业绩分类占比</div>
-        <div class="table-wrap"><table class="penetration-table" id="doctorAmtDogcatTable"></table></div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script>
 // ====== DATA ======
 const DATA = {
-  total_bills: 6871,
-  total_amt: 701110.12,
-  date_range: { start: '2026-07-01', end: '2026-07-06' },
+  total_bills: 9424,
+  total_amt: 971363.50,
+  date_range: { start: '2026-07-01', end: '2026-07-08' },
 store_rank: [
-    { 门店: "海珠重症", 总实收额: 172327.37, 排名: 1 },
-    { 门店: "天河肿瘤", 总实收额: 133051.63, 排名: 2 },
-    { 门店: "顺德中心", 总实收额: 99656.03, 排名: 3 },
-    { 门店: "上海异宠", 总实收额: 87138.10, 排名: 4 },
-    { 门店: "天河异宠", 总实收额: 78657.49, 排名: 5 },
-    { 门店: "成都异宠", 总实收额: 61727.00, 排名: 6 },
-    { 门店: "北京异宠", 总实收额: 39530.50, 排名: 7 },
-    { 门店: "海珠夜间", 总实收额: 29022.00, 排名: 8 }
+    { 门店: "海珠重症", 总实收额: 240210.77, 排名: 1 },
+    { 门店: "天河肿瘤", 总实收额: 215842.18, 排名: 2 },
+    { 门店: "顺德中心", 总实收额: 130149.62, 排名: 3 },
+    { 门店: "上海异宠", 总实收额: 117657.25, 排名: 4 },
+    { 门店: "天河异宠", 总实收额: 107216.20, 排名: 5 },
+    { 门店: "成都异宠", 总实收额: 79684.48, 排名: 6 },
+    { 门店: "北京异宠", 总实收额: 43360.00, 排名: 7 },
+    { 门店: "海珠夜间", 总实收额: 37243.00, 排名: 8 }
   ],
 store_bills: [
-    { 门店: "海珠重症", 账单数: 1984 },
-    { 门店: "天河肿瘤", 账单数: 1308 },
-    { 门店: "顺德中心", 账单数: 1183 },
-    { 门店: "天河异宠", 账单数: 790 },
-    { 门店: "上海异宠", 账单数: 584 },
-    { 门店: "成都异宠", 账单数: 546 },
-    { 门店: "北京异宠", 账单数: 318 },
-    { 门店: "海珠夜间", 账单数: 158 }
+    { 门店: "海珠重症", 账单数: 2743 },
+    { 门店: "天河肿瘤", 账单数: 1979 },
+    { 门店: "顺德中心", 账单数: 1535 },
+    { 门店: "天河异宠", 账单数: 1048 },
+    { 门店: "上海异宠", 账单数: 828 },
+    { 门店: "成都异宠", 账单数: 719 },
+    { 门店: "北京异宠", 账单数: 364 },
+    { 门店: "海珠夜间", 账单数: 208 }
   ],
 store_cat: [
-    { 门店: "北京异宠", 业绩分类: "门诊", 金额: 21293.50 },
-    { 门店: "北京异宠", 业绩分类: "化验", 金额: 5510 },
+    { 门店: "北京异宠", 业绩分类: "门诊", 金额: 24628 },
+    { 门店: "北京异宠", 业绩分类: "化验", 金额: 5605 },
     { 门店: "北京异宠", 业绩分类: "住院", 金额: 1167 },
     { 门店: "北京异宠", 业绩分类: "手术", 金额: 500 },
     { 门店: "北京异宠", 业绩分类: "CT/MRI", 金额: 5460 },
-    { 门店: "北京异宠", 业绩分类: "X光/助扶费", 金额: 5600 },
-    { 门店: "成都异宠", 业绩分类: "门诊", 金额: 21661.39 },
-    { 门店: "成都异宠", 业绩分类: "化验", 金额: 9315.02 },
-    { 门店: "成都异宠", 业绩分类: "住院", 金额: 13973.01 },
+    { 门店: "北京异宠", 业绩分类: "X光/助扶费", 金额: 6000 },
+    { 门店: "成都异宠", 业绩分类: "门诊", 金额: 28536.51 },
+    { 门店: "成都异宠", 业绩分类: "化验", 金额: 10736.73 },
+    { 门店: "成都异宠", 业绩分类: "住院", 金额: 17048.01 },
     { 门店: "成都异宠", 业绩分类: "手术", 金额: 8004.07 },
-    { 门店: "成都异宠", 业绩分类: "CT/MRI", 金额: 3288.77 },
-    { 门店: "成都异宠", 业绩分类: "X光/助扶费", 金额: 5484.74 },
-    { 门店: "海珠重症", 业绩分类: "B超", 金额: 5363.34 },
-    { 门店: "海珠重症", 业绩分类: "CT/MRI", 金额: 19295 },
-    { 门店: "海珠重症", 业绩分类: "X光/助扶费", 金额: 2176.43 },
-    { 门店: "海珠重症", 业绩分类: "化验", 金额: 37573.05 },
-    { 门店: "海珠重症", 业绩分类: "门诊", 金额: 35259.25 },
-    { 门店: "海珠重症", 业绩分类: "手术", 金额: 23622.20 },
-    { 门店: "海珠重症", 业绩分类: "住院", 金额: 49038.10 },
+    { 门店: "成都异宠", 业绩分类: "CT/MRI", 金额: 6468.77 },
+    { 门店: "成都异宠", 业绩分类: "B超", 金额: 780 },
+    { 门店: "成都异宠", 业绩分类: "X光/助扶费", 金额: 8110.39 },
+    { 门店: "海珠重症", 业绩分类: "B超", 金额: 10823.31 },
+    { 门店: "海珠重症", 业绩分类: "CT/MRI", 金额: 25594 },
+    { 门店: "海珠重症", 业绩分类: "X光/助扶费", 金额: 5601.09 },
+    { 门店: "海珠重症", 业绩分类: "化验", 金额: 54178.55 },
+    { 门店: "海珠重症", 业绩分类: "门诊", 金额: 51016.78 },
+    { 门店: "海珠重症", 业绩分类: "手术", 金额: 24793.94 },
+    { 门店: "海珠重症", 业绩分类: "住院", 金额: 68203.10 },
     { 门店: "海珠夜间", 业绩分类: "B超", 金额: 400 },
-    { 门店: "海珠夜间", 业绩分类: "X光/助扶费", 金额: 1800 },
-    { 门店: "海珠夜间", 业绩分类: "化验", 金额: 6160.50 },
-    { 门店: "海珠夜间", 业绩分类: "门诊", 金额: 20661.50 },
-    { 门店: "顺德中心", 业绩分类: "B超", 金额: 4567.04 },
-    { 门店: "顺德中心", 业绩分类: "CT/MRI", 金额: 6036.84 },
-    { 门店: "顺德中心", 业绩分类: "X光/助扶费", 金额: 2771.53 },
-    { 门店: "顺德中心", 业绩分类: "化验", 金额: 24431.10 },
-    { 门店: "顺德中心", 业绩分类: "门诊", 金额: 44764.98 },
-    { 门店: "顺德中心", 业绩分类: "手术", 金额: 7886.73 },
-    { 门店: "顺德中心", 业绩分类: "住院", 金额: 9197.81 },
-    { 门店: "上海异宠", 业绩分类: "B超", 金额: 200 },
-    { 门店: "上海异宠", 业绩分类: "CT/MRI", 金额: 18558.54 },
-    { 门店: "上海异宠", 业绩分类: "X光/助扶费", 金额: 8057.53 },
-    { 门店: "上海异宠", 业绩分类: "化验", 金额: 17020.04 },
-    { 门店: "上海异宠", 业绩分类: "门诊", 金额: 35131.99 },
-    { 门店: "上海异宠", 业绩分类: "住院", 金额: 8170 },
-    { 门店: "天河异宠", 业绩分类: "B超", 金额: 193.62 },
-    { 门店: "天河异宠", 业绩分类: "CT/MRI", 金额: 8070.73 },
-    { 门店: "天河异宠", 业绩分类: "X光/助扶费", 金额: 7358.79 },
-    { 门店: "天河异宠", 业绩分类: "化验", 金额: 14773.28 },
-    { 门店: "天河异宠", 业绩分类: "门诊", 金额: 18588.19 },
-    { 门店: "天河异宠", 业绩分类: "手术", 金额: 13890.88 },
-    { 门店: "天河异宠", 业绩分类: "住院", 金额: 15782 },
-    { 门店: "天河肿瘤", 业绩分类: "B超", 金额: 2777.81 },
-    { 门店: "天河肿瘤", 业绩分类: "CT/MRI", 金额: 5800 },
-    { 门店: "天河肿瘤", 业绩分类: "X光/助扶费", 金额: 2991.45 },
-    { 门店: "天河肿瘤", 业绩分类: "化验", 金额: 26496.46 },
-    { 门店: "天河肿瘤", 业绩分类: "门诊", 金额: 38452.41 },
-    { 门店: "天河肿瘤", 业绩分类: "手术", 金额: 33900.04 },
-    { 门店: "天河肿瘤", 业绩分类: "住院", 金额: 22633.46 }
+    { 门店: "海珠夜间", 业绩分类: "X光/助扶费", 金额: 2880 },
+    { 门店: "海珠夜间", 业绩分类: "化验", 金额: 6934.50 },
+    { 门店: "海珠夜间", 业绩分类: "门诊", 金额: 27028.50 },
+    { 门店: "顺德中心", 业绩分类: "B超", 金额: 6787.23 },
+    { 门店: "顺德中心", 业绩分类: "CT/MRI", 金额: 6336.84 },
+    { 门店: "顺德中心", 业绩分类: "X光/助扶费", 金额: 4015.97 },
+    { 门店: "顺德中心", 业绩分类: "化验", 金额: 30787.33 },
+    { 门店: "顺德中心", 业绩分类: "门诊", 金额: 56218.05 },
+    { 门店: "顺德中心", 业绩分类: "手术", 金额: 13286.39 },
+    { 门店: "顺德中心", 业绩分类: "住院", 金额: 12717.81 },
+    { 门店: "上海异宠", 业绩分类: "B超", 金额: 400 },
+    { 门店: "上海异宠", 业绩分类: "CT/MRI", 金额: 19758.54 },
+    { 门店: "上海异宠", 业绩分类: "X光/助扶费", 金额: 11626.02 },
+    { 门店: "上海异宠", 业绩分类: "化验", 金额: 25846.59 },
+    { 门店: "上海异宠", 业绩分类: "门诊", 金额: 48116.10 },
+    { 门店: "上海异宠", 业绩分类: "住院", 金额: 11910 },
+    { 门店: "天河异宠", 业绩分类: "B超", 金额: 388.66 },
+    { 门店: "天河异宠", 业绩分类: "CT/MRI", 金额: 15551.48 },
+    { 门店: "天河异宠", 业绩分类: "X光/助扶费", 金额: 9342.72 },
+    { 门店: "天河异宠", 业绩分类: "化验", 金额: 20766.91 },
+    { 门店: "天河异宠", 业绩分类: "门诊", 金额: 24907.98 },
+    { 门店: "天河异宠", 业绩分类: "手术", 金额: 16981.45 },
+    { 门店: "天河异宠", 业绩分类: "住院", 金额: 19277 },
+    { 门店: "天河肿瘤", 业绩分类: "B超", 金额: 3845.35 },
+    { 门店: "天河肿瘤", 业绩分类: "CT/MRI", 金额: 9625.58 },
+    { 门店: "天河肿瘤", 业绩分类: "X光/助扶费", 金额: 5068.06 },
+    { 门店: "天河肿瘤", 业绩分类: "化验", 金额: 38528.72 },
+    { 门店: "天河肿瘤", 业绩分类: "门诊", 金额: 52271.07 },
+    { 门店: "天河肿瘤", 业绩分类: "手术", 金额: 72488.94 },
+    { 门店: "天河肿瘤", 业绩分类: "住院", 金额: 34014.46 }
   ],
 doctor_store: [
-    { 门店: "天河肿瘤", 开单人: "凌晓理", 金额: 44856 },
-    { 门店: "海珠重症", 开单人: "李泽贤", 金额: 42467.94 },
-    { 门店: "海珠重症", 开单人: "张飏", 金额: 33709.30 },
-    { 门店: "海珠重症", 开单人: "林倩华", 金额: 33213.02 },
-    { 门店: "上海异宠", 开单人: "陆越", 金额: 32803 },
-    { 门店: "海珠重症", 开单人: "董继凤", 金额: 30464.48 },
-    { 门店: "北京异宠", 开单人: "唐国梁", 金额: 30163 },
-    { 门店: "天河异宠", 开单人: "邹梓俊", 金额: 30027 },
-    { 门店: "天河肿瘤", 开单人: "黄洁明", 金额: 28388.38 },
-    { 门店: "成都异宠", 开单人: "阎雪松", 金额: 27661 },
-    { 门店: "天河肿瘤", 开单人: "曹洁", 金额: 27457.58 },
-    { 门店: "顺德中心/天河肿瘤", 开单人: "朱华君", 金额: 24483.02 },
-    { 门店: "顺德中心", 开单人: "杨沁颖", 金额: 23302.49 },
-    { 门店: "上海异宠", 开单人: "翁治天", 金额: 22741.49 },
-    { 门店: "顺德中心", 开单人: "陈佩玲", 金额: 22348.70 },
+    { 门店: "天河肿瘤", 开单人: "曹洁", 金额: 64154.09 },
+    { 门店: "海珠重症", 开单人: "张飏", 金额: 58719.70 },
+    { 门店: "海珠重症", 开单人: "林倩华", 金额: 57268.02 },
+    { 门店: "天河肿瘤", 开单人: "凌晓理", 金额: 51916 },
+    { 门店: "天河肿瘤", 开单人: "黄洁明", 金额: 46984.81 },
+    { 门店: "海珠重症", 开单人: "李泽贤", 金额: 42967.94 },
+    { 门店: "上海异宠", 开单人: "陆越", 金额: 42522.87 },
+    { 门店: "顺德中心", 开单人: "陈佩玲", 金额: 33938.85 },
+    { 门店: "海珠重症", 开单人: "董继凤", 金额: 33830.48 },
+    { 门店: "成都异宠", 开单人: "帅敏", 金额: 33718.77 },
+    { 门店: "北京异宠", 开单人: "唐国梁", 金额: 33360.50 },
+    { 门店: "天河异宠", 开单人: "邹梓俊", 金额: 32889 },
+    { 门店: "顺德中心/海珠重症/天河肿瘤", 开单人: "朱华君", 金额: 32689.68 },
+    { 门店: "上海异宠", 开单人: "张弦", 金额: 32561.38 },
+    { 门店: "天河异宠", 开单人: "刘泽鑫", 金额: 29717.53 },
+    { 门店: "顺德中心", 开单人: "张迪雄", 金额: 28647.04 },
+    { 门店: "成都异宠", 开单人: "阎雪松", 金额: 28526 },
+    { 门店: "上海异宠", 开单人: "翁治天", 金额: 28196.49 },
+    { 门店: "天河异宠", 开单人: "黄素荃", 金额: 25401.71 },
+    { 门店: "顺德中心", 开单人: "杨沁颖", 金额: 24645.99 },
+    { 门店: "天河肿瘤", 开单人: "杨秀碟", 金额: 23466.54 },
     { 门店: "海珠夜间", 开单人: "何骏贤", 金额: 21125 },
-    { 门店: "成都异宠", 开单人: "帅敏", 金额: 20401.77 },
-    { 门店: "天河异宠", 开单人: "刘泽鑫", 金额: 19118.53 },
-    { 门店: "上海异宠", 开单人: "张弦", 金额: 18865.10 },
-    { 门店: "顺德中心", 开单人: "张迪雄", 金额: 17937.64 },
-    { 门店: "海珠重症/海珠夜间", 开单人: "叶志斌", 金额: 16284 },
-    { 门店: "天河肿瘤", 开单人: "杨秀碟", 金额: 13061.54 },
-    { 门店: "海珠重症", 开单人: "何家杰", 金额: 12840 },
+    { 门店: "海珠重症", 开单人: "何家杰", 金额: 19483 },
+    { 门店: "海珠夜间/海珠重症", 开单人: "叶志斌", 金额: 16284 },
+    { 门店: "上海异宠", 开单人: "李淼鑫", 金额: 14226.51 },
+    { 门店: "顺德中心", 开单人: "何慧妍", 金额: 13646.44 },
+    { 门店: "天河肿瘤", 开单人: "卢舒勉", 金额: 13175.14 },
     { 门店: "天河异宠", 开单人: "谢冠晖", 金额: 12745 },
-    { 门店: "上海异宠", 开单人: "李淼鑫", 金额: 12628.51 },
-    { 门店: "顺德中心", 开单人: "何慧妍", 金额: 11682.44 },
-    { 门店: "天河肿瘤", 开单人: "卢舒勉", 金额: 11037.34 },
-    { 门店: "天河异宠", 开单人: "黄素荃", 金额: 10409 },
-    { 门店: "北京异宠", 开单人: "王妍博", 金额: 9216 },
+    { 门店: "海珠夜间/海珠重症", 开单人: "朱自洲", 金额: 12518.84 },
+    { 门店: "天河肿瘤", 开单人: "卢恺滢", 金额: 10600.01 },
+    { 门店: "北京异宠", 开单人: "王妍博", 金额: 9848 },
     { 门店: "成都异宠", 开单人: "王鑫", 金额: 9073 },
-    { 门店: "天河异宠", 开单人: "罗振宇", 金额: 6041.50 },
-    { 门店: "顺德中心", 开单人: "0219顺德回访", 金额: 4798.07 },
-    { 门店: "成都异宠", 开单人: "杨阳", 金额: 4554.23 },
-    { 门店: "海珠重症/海珠夜间", 开单人: "朱自洲", 金额: 4297.84 },
-    { 门店: "海珠重症", 开单人: "0227海珠回访", 金额: 3635.13 },
-    { 门店: "天河肿瘤", 开单人: "卢恺滢", 金额: 2714 },
+    { 门店: "成都异宠", 开单人: "杨阳", 金额: 8201.23 },
+    { 门店: "海珠重症", 开单人: "0227海珠回访", 金额: 7490.13 },
+    { 门店: "天河异宠", 开单人: "罗振宇", 金额: 6146.50 },
+    { 门店: "顺德中心", 开单人: "0219顺德回访", 金额: 5931.95 },
     { 门店: "海珠夜间", 开单人: "林志轩", 金额: 1234 },
     { 门店: "海珠重症", 开单人: "Charline陈春玲", 金额: 581.66 },
-    { 门店: "天河肿瘤", 开单人: "0224肿瘤中医专科回访", 金额: 497.46 },
+    { 门店: "天河肿瘤", 开单人: "0224肿瘤中医专科回访", 金额: 506.26 },
     { 门店: "海珠重症", 开单人: "张 飏", 金额: 493 },
     { 门店: "海珠重症", 开单人: "阳婷", 金额: 472 },
     { 门店: "天河异宠", 开单人: "0218天河回访", 金额: 316.46 },
     { 门店: "海珠重症", 开单人: "蔡晓璇", 金额: 228 },
     { 门店: "海珠重症", 开单人: "0220海珠回访", 金额: 180 },
+    { 门店: "成都异宠", 开单人: "2025成都前台回访", 金额: 165.48 },
     { 门店: "北京异宠", 开单人: "吕新月", 金额: 151.50 },
+    { 门店: "上海异宠", 开单人: "0226上海前台回访", 金额: 150 },
     { 门店: "海珠重症", 开单人: "黄妙容", 金额: 124 },
-    { 门店: "上海异宠", 开单人: "0226上海前台回访", 金额: 100 },
     { 门店: "顺德中心", 开单人: "梁菲栩", 金额: 99 },
-    { 门店: "顺德中心", 开单人: "冯晓清", 金额: 44 },
-    { 门店: "成都异宠", 开单人: "2025成都前台回访", 金额: 37 }
+    { 门店: "顺德中心", 开单人: "冯晓清", 金额: 44 }
   ],
 cat_amt: [
-    { 业绩分类: "门诊", 金额: 235813.21 },
-    { 业绩分类: "化验", 金额: 141279.45 },
-    { 业绩分类: "住院", 金额: 119961.38 },
-    { 业绩分类: "手术", 金额: 87803.92 },
-    { 业绩分类: "CT/MRI", 金额: 66509.88 },
-    { 业绩分类: "X光/助扶费", 金额: 36240.47 },
-    { 业绩分类: "B超", 金额: 13501.81 }
+    { 业绩分类: "门诊", 金额: 312722.99 },
+    { 业绩分类: "化验", 金额: 193384.33 },
+    { 业绩分类: "住院", 金额: 164337.38 },
+    { 业绩分类: "手术", 金额: 136054.79 },
+    { 业绩分类: "CT/MRI", 金额: 88795.21 },
+    { 业绩分类: "X光/助扶费", 金额: 52644.25 },
+    { 业绩分类: "B超", 金额: 23424.55 }
   ],
 animal_amt: [
-    { 种类: "犬", 金额: 232120.39 },
-    { 种类: "猫", 金额: 200368.10 },
-    { 种类: "鸟", 金额: 111692.63 },
-    { 种类: "兔", 金额: 50528 },
-    { 种类: "龟", 金额: 42968 },
-    { 种类: "蜥蜴", 金额: 19109 },
-    { 种类: "蜜袋鼯", 金额: 7653 },
-    { 种类: "豚鼠", 金额: 6513 },
-    { 种类: "雄貂", 金额: 6077 },
+    { 种类: "犬", 金额: 328084.15 },
+    { 种类: "猫", 金额: 292948.38 },
+    { 种类: "鸟", 金额: 140532.22 },
+    { 种类: "兔", 金额: 69067 },
+    { 种类: "龟", 金额: 49278 },
+    { 种类: "蜥蜴", 金额: 24970.98 },
+    { 种类: "雄貂", 金额: 11345 },
+    { 种类: "蜜袋鼯", 金额: 10186.30 },
+    { 种类: "豚鼠", 金额: 8738.97 },
+    { 种类: "鸡", 金额: 8574 },
     { 种类: "龙猫", 金额: 4690 },
-    { 种类: "鸡", 金额: 2910 },
-    { 种类: "雌貂", 金额: 2783 },
+    { 种类: "仓鼠", 金额: 3868.50 },
+    { 种类: "雌貂", 金额: 3609 },
     { 种类: "野生动物", 金额: 2436 },
+    { 种类: "蛇", 金额: 2017 },
     { 种类: "刺猬", 金额: 1977 },
-    { 种类: "仓鼠", 金额: 1977 },
-    { 种类: "蛇", 金额: 1685 },
+    { 种类: "花枝鼠", 金额: 1699 },
+    { 种类: "松鼠", 金额: 1460 },
+    { 种类: "蛙", 金额: 1451 },
     { 种类: "其他", 金额: 1343 },
-    { 种类: "蛙", 金额: 1340 },
-    { 种类: "花枝鼠", 金额: 1192 },
-    { 种类: "松鼠", 金额: 1030 },
+    { 种类: "羊驼", 金额: 1200 },
+    { 种类: "鸭", 金额: 935 },
+    { 种类: "狗", 金额: 574 },
     { 种类: "土拨鼠", 金额: 379 },
-    { 种类: "狗", 金额: 254 },
-    { 种类: "鸭", 金额: 85 }
+    { 种类: "獴", 金额: 0 }
   ]
 };
 
@@ -562,62 +466,7 @@ const DOCTOR_TARGETS = {
 const CAT_COLORS = { '门诊':'#3b82f6','化验':'#10b981','住院':'#ec4899','手术':'#f59e0b','CT/MRI':'#8b5cf6','X光/助扶费':'#f97316','B超':'#06b6d4' };
 const ANIMAL_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#ec4899','#84cc16','#14b8a6','#a855f7','#fb923c','#22d3ee','#fbbf24','#e879f9'];
 
-// ====== PENETRATION DATA (医院业绩渗透率对比) ======
-const PENETRATION_DATA = {
-  exotic: [
-    { store: '天河异宠', cases: 92, xray: 92, xrayPct: 100.0, ct: 9, ctPct: 9.8, b: 1, bPct: 1.1, total: 78341.03, out: 18271.73, outPct: 23.3, in: 15782.0, inPct: 20.1, surg: 13890.88, surgPct: 17.7, lab: 14773.28, labPct: 18.9 },
-    { store: '成都异宠', cases: 76, xray: 23, xrayPct: 30.3, ct: 5, ctPct: 6.6, b: 0, bPct: 0, total: 61690.0, out: 21624.39, outPct: 35.1, in: 13973.01, inPct: 22.7, surg: 8004.07, surgPct: 13.0, lab: 9315.02, labPct: 15.1 },
-    { store: '上海异宠', cases: 102, xray: 22, xrayPct: 21.6, ct: 20, ctPct: 19.6, b: 1, bPct: 1.0, total: 87038.1, out: 35031.99, outPct: 40.2, in: 8170.0, inPct: 9.4, surg: 0, surgPct: 0, lab: 17020.04, labPct: 19.6 },
-    { store: '北京异宠', cases: 69, xray: 28, xrayPct: 40.6, ct: 6, ctPct: 8.7, b: 0, bPct: 0, total: 39530.5, out: 21293.5, outPct: 53.9, in: 1167.0, inPct: 3.0, surg: 500.0, surgPct: 1.3, lab: 5510.0, labPct: 13.9 }
-  ],
-  dogcat: [
-    { store: '顺德中心', cases: 96, xray: 49, xrayPct: 51.0, ct: 8, ctPct: 8.3, b: 26, bPct: 27.1, total: 94857.96, out: 40295.71, outPct: 42.5, in: 9197.81, inPct: 9.7, surg: 7886.73, surgPct: 8.3, lab: 24102.3, labPct: 25.4 },
-    { store: '天河肿瘤', cases: 79, xray: 57, xrayPct: 72.2, ct: 11, ctPct: 13.9, b: 20, bPct: 25.3, total: 132554.17, out: 37954.95, outPct: 28.6, in: 22633.46, inPct: 17.1, surg: 33900.04, surgPct: 25.6, lab: 26496.46, labPct: 20.0 },
-    { store: '海珠重症', cases: 119, xray: 40, xrayPct: 33.6, ct: 28, ctPct: 23.5, b: 24, bPct: 20.2, total: 168512.24, out: 31534.12, outPct: 18.7, in: 49038.1, inPct: 29.1, surg: 23622.2, surgPct: 14.0, lab: 37483.05, labPct: 22.2 },
-    { store: '海珠夜间', cases: 24, xray: 20, xrayPct: 83.3, ct: 0, ctPct: 0, b: 2, bPct: 8.3, total: 29022.0, out: 20661.5, outPct: 71.2, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 6160.5, labPct: 21.2 }
-  ]
-};
 
-// ====== DOCTOR PENETRATION DATA (医生业绩渗透) ======
-const DOCTOR_PENETRATION_DATA = [
-  { store: '成都异宠', doctor: '帅敏', target: 110000, cases: 31, xray: 17, xrayPct: 54.8, ct: 1, ctPct: 3.2, b: 0, bPct: 0, total: 21990.77, out: 10793.52, outPct: 49.1, in: 290, inPct: 1.3, surg: 3274.24, surgPct: 14.9, lab: 2885.02, labPct: 13.1 },
-  { store: '成都异宠', doctor: '杨阳', target: 35000, cases: 15, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 4554.23, out: 1049.23, outPct: 23, in: 3385, inPct: 74.3, surg: 0, surgPct: 0, lab: 120, labPct: 2.6 },
-  { store: '成都异宠', doctor: '王鑫', target: 25000, cases: 11, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 9073, out: 1365, outPct: 15, in: 7048, inPct: 77.7, surg: 0, surgPct: 0, lab: 660, labPct: 7.3 },
-  { store: '成都异宠', doctor: '阎雪松', target: 100000, cases: 44, xray: 6, xrayPct: 13.6, ct: 4, ctPct: 9.1, b: 0, bPct: 0, total: 27661, out: 10005.64, outPct: 36.2, in: 3250.01, inPct: 11.7, surg: 4729.83, surgPct: 17.1, lab: 5650, labPct: 20.4 },
-  { store: '上海异宠', doctor: '张弦', target: 116100, cases: 33, xray: 6, xrayPct: 18.2, ct: 4, ctPct: 12.1, b: 1, bPct: 3, total: 18865.1, out: 6555.02, outPct: 34.7, in: 2340, inPct: 12.4, surg: 0, surgPct: 0, lab: 4478.92, labPct: 23.7 },
-  { store: '上海异宠', doctor: '李淼鑫', target: 34400, cases: 23, xray: 2, xrayPct: 8.7, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 12628.51, out: 4497.19, outPct: 35.6, in: 5830, inPct: 46.2, surg: 0, surgPct: 0, lab: 1861.32, labPct: 14.7 },
-  { store: '上海异宠', doctor: '翁治天', target: 129000, cases: 19, xray: 5, xrayPct: 26.3, ct: 7, ctPct: 36.8, b: 0, bPct: 0, total: 23243.49, out: 9120.71, outPct: 39.2, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 4715, labPct: 20.3 },
-  { store: '上海异宠', doctor: '陆越', target: 150500, cases: 42, xray: 9, xrayPct: 21.4, ct: 10, ctPct: 23.8, b: 0, bPct: 0, total: 32803, out: 14859.07, outPct: 45.3, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 6226.8, labPct: 19 },
-  { store: '北京异宠', doctor: '吕新月', target: '待定', cases: 1, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 151.5, out: 151.5, outPct: 100, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 0, labPct: 0 },
-  { store: '北京异宠', doctor: '唐国梁', target: '待定', cases: 44, xray: 20, xrayPct: 45.5, ct: 6, ctPct: 13.6, b: 0, bPct: 0, total: 30163, out: 15536, outPct: 51.5, in: 417, inPct: 1.4, surg: 0, surgPct: 0, lab: 4750, labPct: 15.7 },
-  { store: '北京异宠', doctor: '王妍博', target: '待定', cases: 24, xray: 8, xrayPct: 33.3, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 9216, out: 5606, outPct: 60.8, in: 750, inPct: 8.1, surg: 500, surgPct: 5.4, lab: 760, labPct: 8.2 },
-  { store: '天河异宠', doctor: '刘泽鑫', target: '待定', cases: 38, xray: 38, xrayPct: 100, ct: 3, ctPct: 7.9, b: 0, bPct: 0, total: 22235, out: 5062.14, outPct: 22.8, in: 0, inPct: 0, surg: 9938.88, surgPct: 44.7, lab: 2293.69, labPct: 10.3 },
-  { store: '天河异宠', doctor: '罗振宇', target: '待定', cases: 9, xray: 6, xrayPct: 66.7, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 6041.5, out: 285.5, outPct: 4.7, in: 5060, inPct: 83.8, surg: 0, surgPct: 0, lab: 276, labPct: 4.6 },
-  { store: '天河异宠', doctor: '谢冠晖', target: '待定', cases: 17, xray: 14, xrayPct: 82.4, ct: 2, ctPct: 11.8, b: 0, bPct: 0, total: 12745, out: 6116.8, outPct: 48, in: 442, inPct: 3.5, surg: 0, surgPct: 0, lab: 3833.77, labPct: 30.1 },
-  { store: '天河异宠', doctor: '邹梓俊', target: '待定', cases: 32, xray: 22, xrayPct: 68.8, ct: 3, ctPct: 9.4, b: 1, bPct: 3.1, total: 30027, out: 6090.62, outPct: 20.3, in: 3072, inPct: 10.2, surg: 7010, surgPct: 23.3, lab: 7643.77, labPct: 25.5 },
-  { store: '天河异宠', doctor: '黄素荃', target: '待定', cases: 12, xray: 12, xrayPct: 100, ct: 1, ctPct: 8.3, b: 0, bPct: 0, total: 10409, out: 775.14, outPct: 7.4, in: 7208, inPct: 69.2, surg: 0, surgPct: 0, lab: 726.05, labPct: 7 },
-  { store: '海珠重症', doctor: '何家杰', target: '待定', cases: 16, xray: 8, xrayPct: 50, ct: 4, ctPct: 25, b: 3, bPct: 18.8, total: 12840, out: 4030.79, outPct: 31.4, in: 0, inPct: 0, surg: 2991.65, surgPct: 23.3, lab: 2258.95, labPct: 17.6 },
-  { store: '海珠重症', doctor: '叶志斌', target: '待定', cases: 20, xray: 4, xrayPct: 20, ct: 3, ctPct: 15, b: 2, bPct: 10, total: 16284, out: 3119.18, outPct: 19.2, in: 0, inPct: 0, surg: 3632.23, surgPct: 22.3, lab: 6317.8, labPct: 38.8 },
-  { store: '海珠重症', doctor: '张飏', target: '待定', cases: 35, xray: 4, xrayPct: 11.4, ct: 15, ctPct: 42.9, b: 6, bPct: 17.1, total: 33709.3, out: 13330.59, outPct: 39.5, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 10293.21, labPct: 30.5 },
-  { store: '海珠重症', doctor: '朱自洲', target: 80000, cases: 5, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 4297.84, out: 3975.34, outPct: 92.5, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 322.5, labPct: 7.5 },
-  { store: '海珠重症', doctor: '李泽贤', target: '待定', cases: 28, xray: 28, xrayPct: 100, ct: 6, ctPct: 21.4, b: 12, bPct: 42.9, total: 44727.94, out: 6214.84, outPct: 13.9, in: 0, inPct: 0, surg: 16998.32, surgPct: 38, lab: 11603.12, labPct: 25.9 },
-  { store: '海珠重症', doctor: '林倩华', target: '待定', cases: 19, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 3, bPct: 15.8, total: 33213.02, out: 1872.92, outPct: 5.6, in: 23226.1, inPct: 69.9, surg: 0, surgPct: 0, lab: 7334, labPct: 22.1 },
-  { store: '海珠重症', doctor: '董继凤', target: '待定', cases: 20, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 30464.48, out: 2472.48, outPct: 8.1, in: 25812, inPct: 84.7, surg: 0, surgPct: 0, lab: 2180, labPct: 7.2 },
-  { store: '海珠重症', doctor: '黄妙容', target: '待定', cases: 1, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 124, out: 0, outPct: 0, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 124, labPct: 100 },
-  { store: '海珠夜间', doctor: '何骏贤', target: 80000, cases: 14, xray: 20, xrayPct: 142.9, ct: 0, ctPct: 0, b: 2, bPct: 14.3, total: 21125, out: 15129, outPct: 71.6, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 3796, labPct: 18 },
-  { store: '海珠夜间', doctor: '林志轩', target: 30000, cases: 2, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 1234, out: 612, outPct: 49.6, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 622, labPct: 50.4 },
-  { store: '顺德中心', doctor: '何慧妍', target: 95923, cases: 22, xray: 8, xrayPct: 36.4, ct: 0, ctPct: 0, b: 5, bPct: 22.7, total: 11718.44, out: 4186.73, outPct: 35.7, in: 3283, inPct: 28, surg: 0, surgPct: 0, lab: 2578.01, labPct: 22 },
-  { store: '顺德中心', doctor: '张迪雄', target: 122885, cases: 22, xray: 6, xrayPct: 27.3, ct: 4, ctPct: 18.2, b: 6, bPct: 27.3, total: 17937.64, out: 3316.94, outPct: 18.5, in: 0, inPct: 0, surg: 7886.73, surgPct: 44, lab: 2266.14, labPct: 12.6 },
-  { store: '顺德中心', doctor: '朱华君', target: 95923, cases: 24, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 24483.02, out: 22574.45, outPct: 92.2, in: 0, inPct: 0, surg: 0, surgPct: 0, lab: 1908.57, labPct: 7.8 },
-  { store: '顺德中心', doctor: '杨沁颖', target: 111996, cases: 26, xray: 19, xrayPct: 73.1, ct: 4, ctPct: 15.4, b: 9, bPct: 34.6, total: 25152.49, out: 8731.03, outPct: 34.7, in: 593.8, inPct: 2.4, surg: 0, surgPct: 0, lab: 9265.77, labPct: 36.8 },
-  { store: '顺德中心', doctor: '陈佩玲', target: 122885, cases: 20, xray: 20, xrayPct: 100, ct: 0, ctPct: 0, b: 7, bPct: 35, total: 22678.7, out: 6913.89, outPct: 30.5, in: 5321.01, inPct: 23.5, surg: 0, surgPct: 0, lab: 9028.81, labPct: 39.8 },
-  { store: '天河肿瘤', doctor: '凌晓理', target: 170000, cases: 18, xray: 13, xrayPct: 72.2, ct: 4, ctPct: 22.2, b: 4, bPct: 22.2, total: 44856, out: 5268.53, outPct: 11.7, in: 1520, inPct: 3.4, surg: 28604.26, surgPct: 63.8, lab: 6106.74, labPct: 13.6 },
-  { store: '天河肿瘤', doctor: '卢恺滢', target: 55000, cases: 5, xray: 0, xrayPct: 0, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 2714, out: 16, outPct: 0.6, in: 2308, inPct: 85, surg: 0, surgPct: 0, lab: 390, labPct: 14.4 },
-  { store: '天河肿瘤', doctor: '卢舒勉', target: 55000, cases: 10, xray: 4, xrayPct: 40, ct: 0, ctPct: 0, b: 0, bPct: 0, total: 12607.73, out: 1531.39, outPct: 12.1, in: 8936.96, inPct: 70.9, surg: 0, surgPct: 0, lab: 1899.38, labPct: 15.1 },
-  { store: '天河肿瘤', doctor: '曹洁', target: 130000, cases: 21, xray: 12, xrayPct: 57.1, ct: 0, ctPct: 0, b: 4, bPct: 19, total: 29274.58, out: 11972.35, outPct: 40.9, in: 10946.5, inPct: 37.4, surg: 0, surgPct: 0, lab: 5268.61, labPct: 18 },
-  { store: '天河肿瘤', doctor: '杨秀碟', target: 80000, cases: 17, xray: 4, xrayPct: 23.5, ct: 0, ctPct: 0, b: 4, bPct: 23.5, total: 13061.54, out: 7033.42, outPct: 53.8, in: 0, inPct: 0, surg: 470.02, surgPct: 3.6, lab: 4711.06, labPct: 36.1 },
-  { store: '天河肿瘤', doctor: '黄洁明', target: 160000, cases: 23, xray: 24, xrayPct: 104.3, ct: 7, ctPct: 30.4, b: 8, bPct: 34.8, total: 28443.38, out: 9238.32, outPct: 32.5, in: 0, inPct: 0, surg: 4825.76, surgPct: 17, lab: 8340.67, labPct: 29.3 }
-];
 const doughnutPercentPlugin = {
   id: 'doughnutPercent',
   afterDatasetsDraw(chart) {
@@ -1022,195 +871,6 @@ function buildDocTable(filterStore) {
   });
 })();
 
-// ====== PENETRATION RENDERER ======
-function renderPenetrationTables() {
-  function fmtN(n) { return Number(n).toLocaleString('zh-CN', {maximumFractionDigits:0}); }
-  function fmtAmt(n) { return '¥' + Number(n).toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2}); }
-  function fmtAmtK(n) { return '¥' + Number(n).toLocaleString('zh-CN', {maximumFractionDigits:0}); }
-  function fmtPct(n) { return n.toFixed(1) + '%'; }
-
-  function buildImgTable(data, tableId) {
-    const table = document.getElementById(tableId);
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>分院</th>
-          <th>月病例量</th>
-          <th>X光数量</th>
-          <th>X光渗透率</th>
-          <th>CT数量</th>
-          <th>CT渗透率</th>
-          <th>B超数量</th>
-          <th>B超渗透率</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.map(d => `
-          <tr>
-            <td><strong>${d.store}</strong></td>
-            <td>${fmtN(d.cases)}</td>
-            <td>${fmtN(d.xray)}</td>
-            <td class="pct">${fmtPct(d.xrayPct)}</td>
-            <td>${fmtN(d.ct)}</td>
-            <td class="pct">${fmtPct(d.ctPct)}</td>
-            <td>${fmtN(d.b)}</td>
-            <td class="pct">${fmtPct(d.bPct)}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    `;
-  }
-
-  function buildAmtTable(data, tableId) {
-    const table = document.getElementById(tableId);
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>分院</th>
-          <th>分院总业绩</th>
-          <th>门诊业绩</th>
-          <th>门诊占比</th>
-          <th>住院业绩</th>
-          <th>住院占比</th>
-          <th>手术业绩</th>
-          <th>手术占比</th>
-          <th>化验业绩</th>
-          <th>化验占比</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.map(d => `
-          <tr>
-            <td><strong>${d.store}</strong></td>
-            <td class="amount">${fmtAmt(d.total)}</td>
-            <td class="amount">${fmtAmt(d.out)}</td>
-            <td class="pct">${fmtPct(d.outPct)}</td>
-            <td class="amount">${fmtAmt(d.in)}</td>
-            <td class="pct">${fmtPct(d.inPct)}</td>
-            <td class="amount">${fmtAmt(d.surg)}</td>
-            <td class="pct">${fmtPct(d.surgPct)}</td>
-            <td class="amount">${fmtAmt(d.lab)}</td>
-            <td class="pct">${fmtPct(d.labPct)}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    `;
-  }
-
-  buildImgTable(PENETRATION_DATA.exotic, 'exoticImgTable');
-  buildAmtTable(PENETRATION_DATA.exotic, 'exoticAmtTable');
-  buildImgTable(PENETRATION_DATA.dogcat, 'dogcatImgTable');
-  buildAmtTable(PENETRATION_DATA.dogcat, 'dogcatAmtTable');
-}
-
-(function() {
-  renderPenetrationTables();
-})();
-
-// ====== DOCTOR PENETRATION TABLES ======
-function renderDoctorPenTables() {
-  function fmtN(n) { return n % 1 === 0 ? n.toFixed(0) : n.toFixed(1); }
-  function fmtAmt(n) { return '¥' + (n >= 10000 ? (n/10000).toFixed(1) + '万' : n.toFixed(0)); }
-  function fmtPct(n) { return n.toFixed(1) + '%'; }
-  function fmtTarget(t) {
-    if (typeof t === 'string') return '<span class="pending-tag">' + t + '</span>';
-    return fmtAmt(t);
-  }
-  function doctorName(d) {
-    if (typeof d.target === 'string') return d.doctor + '<span class="pending-tag">（' + d.target + '）</span>';
-    return d.doctor;
-  }
-
-  function buildDoctorImgTable(data, tableId) {
-    const table = document.getElementById(tableId);
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>分院</th>
-          <th>医生</th>
-          <th>月病例量</th>
-          <th>X光数量</th>
-          <th>X光渗透率</th>
-          <th>CT数量</th>
-          <th>CT渗透率</th>
-          <th>B超数量</th>
-          <th>B超渗透率</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.map(d => `
-          <tr${typeof d.target === 'string' ? ' class="pending-row"' : ''}>
-            <td>${d.store}</td>
-            <td><strong>${doctorName(d)}</strong></td>
-            <td>${fmtN(d.cases)}</td>
-            <td>${fmtN(d.xray)}</td>
-            <td class="pct">${fmtPct(d.xrayPct)}</td>
-            <td>${fmtN(d.ct)}</td>
-            <td class="pct">${fmtPct(d.ctPct)}</td>
-            <td>${fmtN(d.b)}</td>
-            <td class="pct">${fmtPct(d.bPct)}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    `;
-  }
-
-  function buildDoctorAmtTable(data, tableId) {
-    const table = document.getElementById(tableId);
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>分院</th>
-          <th>医生</th>
-          <th>业绩目标</th>
-          <th>总业绩</th>
-          <th>门诊业绩</th>
-          <th>门诊占比</th>
-          <th>住院业绩</th>
-          <th>住院占比</th>
-          <th>手术业绩</th>
-          <th>手术占比</th>
-          <th>化验业绩</th>
-          <th>化验占比</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.map(d => `
-          <tr${typeof d.target === 'string' ? ' class="pending-row"' : ''}>
-            <td>${d.store}</td>
-            <td><strong>${doctorName(d)}</strong></td>
-            <td>${fmtTarget(d.target)}</td>
-            <td class="amount">${fmtAmt(d.total)}</td>
-            <td class="amount">${fmtAmt(d.out)}</td>
-            <td class="pct">${fmtPct(d.outPct)}</td>
-            <td class="amount">${fmtAmt(d.in)}</td>
-            <td class="pct">${fmtPct(d.inPct)}</td>
-            <td class="amount">${fmtAmt(d.surg)}</td>
-            <td class="pct">${fmtPct(d.surgPct)}</td>
-            <td class="amount">${fmtAmt(d.lab)}</td>
-            <td class="pct">${fmtPct(d.labPct)}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    `;
-  }
-
-  // Split by store groups
-  const exoticStores = ['天河异宠','成都异宠','上海异宠','北京异宠'];
-  const dogcatStores = ['顺德中心','天河肿瘤','海珠重症','海珠夜间'];
-
-  const exoticDoctors = DOCTOR_PENETRATION_DATA.filter(d => exoticStores.includes(d.store));
-  const dogcatDoctors = DOCTOR_PENETRATION_DATA.filter(d => dogcatStores.includes(d.store));
-
-  buildDoctorImgTable(exoticDoctors, 'doctorImgExoticTable');
-  buildDoctorAmtTable(exoticDoctors, 'doctorAmtExoticTable');
-  buildDoctorImgTable(dogcatDoctors, 'doctorImgDogcatTable');
-  buildDoctorAmtTable(dogcatDoctors, 'doctorAmtDogcatTable');
-}
-
-(function() {
-  renderDoctorPenTables();
-})();
 
 // ====== ANIMAL CHARTS ======
 (function() {
