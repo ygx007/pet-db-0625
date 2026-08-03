@@ -635,8 +635,15 @@ function drawMonthlyCompare(){
     const v6 = (first.stores_cat && first.stores_cat[s]) ? (first.stores_cat[s][c] || 0) : 0;
     const v7 = (last.stores_cat && last.stores_cat[s]) ? (last.stores_cat[s][c] || 0) : 0;
     const p = pct(v7, v6);
+    const p6 = t6 ? v6 / t6 * 100 : 0;
+    const p7 = t7 ? v7 / t7 * 100 : 0;
     const dot = '<span class="cat-dot" style="background:' + (CAT_COLORS[c] || '#999') + '"></span>';
-    return '<tr><td>' + dot + '<b>' + c + '</b></td><td>' + Math.round(v6).toLocaleString() + '</td><td>' + Math.round(v7).toLocaleString() + '</td><td class="' + rateCls(p) + '">' + pctStr(p) + '</td></tr>';
+    return '<tr><td>' + dot + '<b>' + c + '</b></td>'
+      + '<td>' + Math.round(v6).toLocaleString() + '</td>'
+      + '<td>' + p6.toFixed(1) + '%</td>'
+      + '<td>' + Math.round(v7).toLocaleString() + '</td>'
+      + '<td>' + p7.toFixed(1) + '%</td>'
+      + '<td class="' + rateCls(p) + '">' + pctStr(p) + '</td></tr>';
   }).join('');
 
   // ---- 构建多月份总额柱状图（纯HTML，支持6-12月扩展）----
@@ -703,7 +710,7 @@ function drawMonthlyCompare(){
     // 下：分类表格（全宽）
     +     '<div class="mblock full-width">'
     +       '<div class="mb-title">📋 业绩分类环比（逐类对比）</div>'
-    +       '<div class="table-wrap"><table><thead><tr><th>分类</th><th>' + firstLbl + '（元）</th><th>' + lastLbl + '（元）</th><th>环比</th></tr></thead><tbody>' + catRows + '</tbody></table></div>'
+    +       '<div class="table-wrap"><table><thead><tr><th>分类</th><th>' + firstLbl + '（业绩）</th><th>' + firstLbl + '（占比）</th><th>' + lastLbl + '（业绩）</th><th>' + lastLbl + '（占比）</th><th>环比（业绩）</th></tr></thead><tbody>' + catRows + '</tbody></table></div>'
     +     '</div>'
     +   '</div>'
     + '</div>';
