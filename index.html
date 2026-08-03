@@ -53,7 +53,52 @@
   /* 往月环比 */
   .monthly-intro { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:16px 20px; margin-bottom:24px; font-size:14px; color:#475569; line-height:1.7; }
   .monthly-intro b { color:#1e293b; }
+  .mom-method { background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:10px 16px; margin-bottom:20px; font-size:13px; color:#1e40af; line-height:1.6; }
+  .mom-method b { color:#1d4ed8; }
   .muted { color:#94a3b8; font-size:12px; }
+
+  /* 逐门店对比卡片 */
+  .mstore-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:20px 24px; margin-bottom:22px; box-shadow:0 1px 8px rgba(0,0,0,0.04); }
+  .mstore-head { font-size:18px; font-weight:700; color:#1e293b; margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+  .mstore-tag { font-size:12px; font-weight:500; color:#64748b; background:#f1f5f9; padding:3px 10px; border-radius:10px; }
+  .mstore-grid { display:grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:start; }
+  .mstore-grid .full-width { grid-column: 1 / -1; }
+  .mblock { min-width:0; }
+  .mb-title { font-size:14px; font-weight:600; color:#334155; margin-bottom:12px; }
+
+  /* 子弹图（达标率：外框=目标100%，内柱=实际%） */
+  .bullet-chart { padding: 4px 0; }
+  .bullet-row { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .bullet-label { font-size:13px; font-weight:600; color:#475569; min-width:70px; text-align:right; }
+  .bullet-track { flex:1; position:relative; height:42px; background:#f1f5f9; border-radius:8px; border:1.5px solid #e2e8f0; }
+  .bullet-fill { position:absolute; bottom:0; left:0; height:100%; border-radius:6px; transition:width .4s ease; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; }
+  .bullet-fill.ok { background:linear-gradient(90deg, #84cc16, #22c55e); }
+  .bullet-fill.warn { background:linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .bullet-fill.bad { background:linear-gradient(90deg, #ef4444, #f87171); }
+  .bullet-pct { font-size:15px; font-weight:700; white-space:nowrap; min-width:52px; text-align:right; }
+  .bullet-pct.ok { color:#16a34a; }
+  .bullet-pct.warn { color:#d97706; }
+  .bullet-pct.bad { color:#dc2626; }
+  .bullet-target-line { position:absolute; top:-2px; right:0; width:2px; height:calc(100% + 4px); background:#94a3b8; border-radius:1px; }
+  .bullet-legend { display:flex; gap:16px; justify-content:center; font-size:12px; color:#64748b; margin-top:6px; }
+  .bullet-legend span { display:inline-flex; align-items:center; gap:4px; }
+  .bullet-legend i { display:inline-block; width:14px; height:10px; border-radius:3px; }
+
+  /* 多月份柱状图（纯HTML，支持6-12月） */
+  .mom-chart { display:flex; align-items:flex-end; gap:6px; height:200px; padding:42px 4px 24px 4px; position:relative; }
+  .mom-bar-col { flex:1; display:flex; flex-direction:column; align-items:center; min-width:0; position:relative; }
+  .mom-bar-outer { width:100%; height:150px; display:flex; align-items:flex-end; justify-content:center; }
+  .mom-bar-inner { width:70%; max-width:46px; background:linear-gradient(180deg,#60a5fa,#3b82f6); border-radius:5px 5px 2px 2px; transition:height .3s ease; display:flex; align-items:flex-start; justify-content:center; padding-top:4px; min-height:8px; position:relative; }
+  .mom-bar-val { font-size:12px; font-weight:700; color:#1e293b; white-space:nowrap; line-height:1.2; text-align:center; }
+  .mom-unit { font-size:9px; font-weight:600; color:#475569; margin-left:1px; }
+  .mom-bar-lbl { font-size:12px; color:#64748b; margin-top:4px; font-weight:500; white-space:nowrap; }
+  .mom-arrow { position:absolute;top:-38px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;white-space:nowrap;z-index:2;padding:2px 5px;border-radius:5px;line-height:1.25;text-align:center; }
+  .mom-ratio { font-size:10px; font-weight:600; }
+  .mom-up { color:#16a34a; background:#f0fdf4; border:1px solid #bbf7d0; }
+  .mom-dn { color:#dc2626; background:#fef2f2; border:1px solid #fecaca; }
+  .mom-note { font-size:11px; color:#94a3b8; margin-top:8px; text-align:center; }
+  .cat-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+  .mom-empty { text-align:center; color:#94a3b8; padding:48px; font-size:14px; }
   .mom-cards { display:flex; flex-wrap:wrap; gap:16px; margin-bottom:20px; }
   .mom-card { flex:1; min-width:180px; background:#fff; border-radius:12px; padding:16px 20px; box-shadow:0 2px 12px rgba(0,0,0,0.06); border-left:4px solid #3b82f6; }
   .mom-card .mc-label { font-size:13px; color:#64748b; margin-bottom:6px; }
@@ -72,11 +117,12 @@
   .rank-n { background: #f1f5f9; color: #64748b; }
   .amount { font-weight: 600; color: #0f766e; }
 
-  /* Store selector */
-  .store-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
-  .store-btn { padding: 8px 18px; border-radius: 20px; border: 2px solid #e2e8f0; background: #fff; font-size: 13px; cursor: pointer; transition: all 0.2s; color: #475569; }
-  .store-btn:hover { border-color: #3b82f6; color: #3b82f6; }
-  .store-btn.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+  /* Store selector - 下拉框 */
+  .store-selector { display:flex; align-items:center; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
+  .store-selector label { font-size:15px; font-weight:600; color:#334155; white-space:nowrap; }
+  .store-selector select { padding:10px 16px; border:2px solid #e2e8f0; border-radius:10px; background:#fff; font-size:14px; color:#1e293b; min-width:220px; cursor:pointer; outline:none; transition:border-color .2s; }
+  .store-selector select:focus { border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.15); }
+  .store-selector .sel-hint { font-size:13px; color:#94a3b8; }
 
   /* Mini bar */
   .mini-bar-wrap { display: flex; align-items: center; gap: 8px; }
@@ -292,40 +338,8 @@
 
 <!-- ==================== TAB 6: 往月环比 ==================== -->
 <div id="tab-monthly" class="section">
-  <div class="monthly-intro">
-    📊 <b>往月环比分析</b>：以自然月为粒度，对比 <b>业绩总额</b>、<b>7 类业绩分类</b>、<b>达标率</b> 的月度变化。
-    数据层支持自动纳入未来月份（8-12 月），新增月份无需改动前端代码。
-    <span class="muted">（达标率 = 当月实收 ÷ 门店月度目标；整体达标率 = 总实收 ÷ 总目标；当前数据口径为各文件全表聚合）</span>
-  </div>
-
-  <div class="chart-card">
-    <div class="chart-title">📈 业绩总额环比（各月总实收额）</div>
-    <div class="mom-cards" id="totalMomCards"></div>
-    <div class="chart-wrap"><canvas id="monthlyTotalBar"></canvas></div>
-  </div>
-
-  <div class="chart-card">
-    <div class="chart-title">📋 业绩分类环比（各月 × 7 类，堆叠结构）</div>
-    <div class="chart-wrap"><canvas id="monthlyCatStack"></canvas></div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>业绩分类</th><th id="catHeader"></th><th>最近环比</th></tr></thead>
-        <tbody id="catMomTable"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="chart-card">
-    <div class="chart-title">🎯 达标率环比（整体 + 各门店）</div>
-    <div class="mom-cards" id="rateMomCards"></div>
-    <div class="chart-wrap"><canvas id="monthlyRateBar"></canvas></div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>门店</th><th>月度目标</th><th id="rateHeader"></th></tr></thead>
-        <tbody id="storeRateTable"></tbody>
-      </table>
-    </div>
-  </div>
+  <div class="store-selector" id="mStoreSelector"></div>
+  <div id="monthlyCompare"></div>
 </div>
 
 
@@ -385,6 +399,80 @@ const MONTHLY = {
         "海珠夜间": 125050.8,
         "顺德中心": 415174.64,
         "天河肿瘤": 500611.66
+      },
+      "stores_cat": {
+        "北京异宠": {
+          "门诊": 77202.06,
+          "化验": 23093.6,
+          "住院": 7680.0,
+          "手术": 10127.0,
+          "CT/MRI": 17980.0,
+          "X光/助扶费": 22072.0,
+          "B超": 0.0
+        },
+        "成都异宠": {
+          "门诊": 86254.94,
+          "化验": 51036.87,
+          "住院": 50869.91,
+          "手术": 6915.29,
+          "CT/MRI": 32666.25,
+          "X光/助扶费": 31239.56,
+          "B超": 2302.85
+        },
+        "天河异宠": {
+          "门诊": 117740.83,
+          "化验": 85726.73,
+          "住院": 62904.23,
+          "手术": 27580.17,
+          "CT/MRI": 56634.92,
+          "X光/助扶费": 32345.47,
+          "B超": 785.08
+        },
+        "上海异宠": {
+          "门诊": 228779.69,
+          "化验": 91319.94,
+          "住院": 16107.5,
+          "手术": 2610.0,
+          "CT/MRI": 55691.78,
+          "X光/助扶费": 48737.43,
+          "B超": 2204.0
+        },
+        "海珠重症": {
+          "门诊": 162885.51,
+          "化验": 169845.96,
+          "住院": 262155.94,
+          "手术": 124434.07,
+          "CT/MRI": 55926.72,
+          "X光/助扶费": 16092.89,
+          "B超": 21429.02
+        },
+        "海珠夜间": {
+          "门诊": 65771.82,
+          "化验": 33971.81,
+          "住院": 1000.0,
+          "手术": 11406.0,
+          "CT/MRI": 4149.0,
+          "X光/助扶费": 4432.17,
+          "B超": 4320.0
+        },
+        "顺德中心": {
+          "门诊": 164810.77,
+          "化验": 94733.05,
+          "住院": 70828.84,
+          "手术": 21778.58,
+          "CT/MRI": 23266.0,
+          "X光/助扶费": 14196.0,
+          "B超": 25561.4
+        },
+        "天河肿瘤": {
+          "门诊": 172281.36,
+          "化验": 100928.56,
+          "住院": 99853.18,
+          "手术": 68004.18,
+          "CT/MRI": 28180.87,
+          "X光/助扶费": 12137.42,
+          "B超": 19226.09
+        }
       }
     },
     "2026-07": {
@@ -409,6 +497,80 @@ const MONTHLY = {
         "海珠夜间": 166789.55,
         "顺德中心": 476789.98,
         "天河肿瘤": 710936.87
+      },
+      "stores_cat": {
+        "北京异宠": {
+          "门诊": 87499.69,
+          "化验": 18656.0,
+          "住院": 8867.0,
+          "手术": 5908.0,
+          "CT/MRI": 26120.0,
+          "X光/助扶费": 25000.0,
+          "B超": 0.0
+        },
+        "成都异宠": {
+          "门诊": 89066.78,
+          "化验": 45043.58,
+          "住院": 47316.21,
+          "手术": 22567.47,
+          "CT/MRI": 21075.78,
+          "X光/助扶费": 30888.15,
+          "B超": 2887.19
+        },
+        "天河异宠": {
+          "门诊": 121404.67,
+          "化验": 90834.34,
+          "住院": 91184.4,
+          "手术": 40814.4,
+          "CT/MRI": 48317.52,
+          "X光/助扶费": 28902.57,
+          "B超": 2462.13
+        },
+        "上海异宠": {
+          "门诊": 177214.12,
+          "化验": 88475.87,
+          "住院": 43471.65,
+          "手术": 365.0,
+          "CT/MRI": 64887.73,
+          "X光/助扶费": 42046.65,
+          "B超": 1780.0
+        },
+        "海珠重症": {
+          "门诊": 187650.45,
+          "化验": 188230.53,
+          "住院": 223220.02,
+          "手术": 118814.07,
+          "CT/MRI": 106715.56,
+          "X光/助扶费": 18483.67,
+          "B超": 26818.51
+        },
+        "海珠夜间": {
+          "门诊": 90644.14,
+          "化验": 47255.63,
+          "住院": 1220.0,
+          "手术": 0.0,
+          "CT/MRI": 13298.0,
+          "X光/助扶费": 10874.81,
+          "B超": 3496.97
+        },
+        "顺德中心": {
+          "门诊": 165995.8,
+          "化验": 98218.56,
+          "住院": 92495.56,
+          "手术": 61398.96,
+          "CT/MRI": 20436.84,
+          "X光/助扶费": 13431.17,
+          "B超": 24813.09
+        },
+        "天河肿瘤": {
+          "门诊": 209259.74,
+          "化验": 161746.47,
+          "住院": 120282.43,
+          "手术": 134194.92,
+          "CT/MRI": 47127.57,
+          "X光/助扶费": 15496.82,
+          "B超": 22828.92
+        }
       }
     }
   }
@@ -422,90 +584,129 @@ function pctStr(p){ return p === null ? '—' : (p >= 0 ? '+' : '') + p.toFixed(
 function rateCls(p){ return p === null ? '' : (p >= 0 ? 'up' : 'down'); }
 
 let monthlyRendered = false;
+let _mSelStore = '';      // 当前选中的门店（单选）
+let _mCharts = {};         // canvasId -> Chart 实例
+
+function ppStr(v){ return (v >= 0 ? '+' : '') + v.toFixed(1) + 'pp'; }
+function ppCls(v){ return v >= 0 ? 'up' : 'down'; }
+function bulletCls(r){ return r >= 100 ? 'ok' : r >= 80 ? 'warn' : 'bad'; }
+
 function renderMonthly(){
   if (typeof MONTHLY === 'undefined') return;
+  const M = MONTHLY;
+  const sel = document.getElementById('mStoreSelector');
+  // 仅构建一次下拉框（默认第一家）
+  if (!sel.dataset.built) {
+    _mSelStore = M.store_order[0];
+    sel.innerHTML = '<label>选择门店：</label>'
+      + '<select id="mStoreSelect">' + M.store_order.map(s => '<option value="' + s + '"' + (s === _mSelStore ? ' selected' : '') + '>' + s + '</option>').join('') + '</select>'
+      + '<span class="sel-hint">选择门店后可查</span>';
+    document.getElementById('mStoreSelect').addEventListener('change', function(){
+      _mSelStore = this.value;
+      drawMonthlyCompare();
+    });
+    sel.dataset.built = '1';
+  }
+  drawMonthlyCompare();
+  monthlyRendered = true;
+}
+
+// 逐门店对比：每家店独立对比最早月 vs 最晚月
+function drawMonthlyCompare(){
   const M = MONTHLY;
   const keys = Object.keys(M.months).sort();
   const months = keys.map(k => M.months[k]);
   const tgt = M.store_target;
-
-  // --- 模块1：业绩总额环比 ---
-  const totals = months.map(m => m.total);
-  document.getElementById('totalMomCards').innerHTML = months.map((m, i) => {
-    const p = pct(m.total, i > 0 ? months[i-1].total : null);
-    const sub = i === 0 ? '基准月' : '<span class="' + rateCls(p) + '">环比 ' + pctStr(p) + '</span>';
-    return '<div class="mom-card"><div class="mc-label">' + m.label + ' 总额</div><div class="mc-value">' + fmtWan(m.total) + '</div><div class="mc-sub">' + sub + '</div></div>';
-  }).join('');
-
-  if (!window._mTotalBar) {
-    window._mTotalBar = new Chart(document.getElementById('monthlyTotalBar'), {
-      type: 'bar',
-      data: { labels: months.map(m => m.label), datasets: [{ label: '总实收额(万元)', data: totals.map(v => +(v/10000).toFixed(1)), backgroundColor: '#3b82f6', borderRadius: 6 }] },
-      options: { responsive: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => (c.raw*10000).toLocaleString() + ' 元' } } }, scales: { y: { beginAtZero: true, title: { display: true, text: '万元' } } } }
-    });
-  } else {
-    window._mTotalBar.data.labels = months.map(m => m.label);
-    window._mTotalBar.data.datasets[0].data = totals.map(v => +(v/10000).toFixed(1));
-    window._mTotalBar.update();
-  }
-
-  // --- 模块2：业绩分类环比（堆叠） ---
   const catOrder = M.cat_order;
-  if (!window._mCatStack) {
-    window._mCatStack = new Chart(document.getElementById('monthlyCatStack'), {
-      type: 'bar',
-      data: { labels: months.map(m => m.label), datasets: catOrder.map(cat => ({ label: cat, data: months.map(m => +((m.cat[cat]||0)/10000).toFixed(1)), backgroundColor: CAT_COLORS[cat] || '#999', borderRadius: 3 })) },
-      options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true, title: { display: true, text: '万元' } } }, plugins: { legend: { position: 'bottom' } } }
-    });
-  } else {
-    window._mCatStack.data.labels = months.map(m => m.label);
-    window._mCatStack.data.datasets.forEach((ds, i) => { ds.data = months.map(m => +((m.cat[catOrder[i]]||0)/10000).toFixed(1)); });
-    window._mCatStack.update();
-  }
+  const first = months[0], last = months[months.length - 1];
+  const firstLbl = first.label, lastLbl = last.label;
+  const s = _mSelStore;
+  const cont = document.getElementById('monthlyCompare');
+  if (!s || !M.store_order.includes(s)) { cont.innerHTML = '<div class="mom-empty">↑ 请在上方选择门店，查看其逐月环比</div>'; return; }
 
-  // 分类环比表
-  document.getElementById('catHeader').innerHTML = months.map(m => m.label).join(' → ');
-  document.getElementById('catMomTable').innerHTML = catOrder.map(cat => {
-    const last = months.length - 1;
-    const p = pct((months[last].cat[cat]||0), last > 0 ? (months[last-1].cat[cat]||0) : null);
-    const cells = months.map(m => '<td>' + (m.cat[cat]||0).toLocaleString() + '</td>').join('');
-    return '<tr><td><b>' + cat + '</b></td>' + cells + '<td class="' + rateCls(p) + '">' + pctStr(p) + '</td></tr>';
+  const t6 = first.stores[s] || 0, t7 = last.stores[s] || 0;
+  const pTot = pct(t7, t6);
+  const r6 = tgt[s] ? t6 / tgt[s] * 100 : 0;
+  const r7 = tgt[s] ? t7 / tgt[s] * 100 : 0;
+  const pRpp = r7 - r6;
+
+  // 分类环比行
+  const catRows = catOrder.map(c => {
+    const v6 = (first.stores_cat && first.stores_cat[s]) ? (first.stores_cat[s][c] || 0) : 0;
+    const v7 = (last.stores_cat && last.stores_cat[s]) ? (last.stores_cat[s][c] || 0) : 0;
+    const p = pct(v7, v6);
+    const dot = '<span class="cat-dot" style="background:' + (CAT_COLORS[c] || '#999') + '"></span>';
+    return '<tr><td>' + dot + '<b>' + c + '</b></td><td>' + Math.round(v6).toLocaleString() + '</td><td>' + Math.round(v7).toLocaleString() + '</td><td class="' + rateCls(p) + '">' + pctStr(p) + '</td></tr>';
   }).join('');
 
-  // --- 模块3：达标率环比 ---
-  const overall = months.map(m => m.total / tgt._total * 100);
-  document.getElementById('rateMomCards').innerHTML = months.map((m, i) => {
-    const cur = m.total / tgt._total * 100;
-    const prev = i > 0 ? months[i-1].total / tgt._total * 100 : null;
-    const p = pct(cur, prev);
-    const sub = i === 0 ? '基准月' : '<span class="' + rateCls(p) + '">环比 ' + pctStr(p) + '</span>';
-    return '<div class="mom-card"><div class="mc-label">' + m.label + ' 整体达标率</div><div class="mc-value">' + cur.toFixed(1) + '%</div><div class="mc-sub">' + sub + '</div></div>';
+  // ---- 构建多月份总额柱状图（纯HTML，支持6-12月扩展）----
+  const storeVals = months.map(m => m.stores[s] || 0);
+  const maxVal = Math.max(...storeVals, 1);
+  const momBars = months.map((m, i) => {
+    const v = storeVals[i];
+    const hPct = Math.max((v / maxVal * 100), 4); // 最小4%高度，避免0不可见
+    const vWan = +(v / 10000).toFixed(1);
+    const vWanStr = (Math.abs(vWan) >= 100 ? Math.round(vWan) : vWan.toFixed(1));
+    let arrowHtml = '';
+    if (i > 0) {
+      const prevV = storeVals[i-1];
+      const diffWan = (v - prevV) / 10000;
+      const arrCls = diffWan >= 0 ? 'mom-up' : 'mom-dn';
+      const arrow = diffWan >= 0 ? '↑' : '↓';
+      const diffStr = (diffWan >= 0 ? '+' : '') + (Math.abs(diffWan) >= 10 ? Math.round(diffWan) : diffWan.toFixed(1));
+      const ratio = pct(v, prevV);
+      arrowHtml = '<span class="mom-arrow ' + arrCls + '">' + arrow + diffStr + '万<br><span class="mom-ratio">' + pctStr(ratio) + '</span></span>';
+    }
+    return ''
+      + '<div class="mom-bar-col">'
+      +   arrowHtml
+      +   '<div class="mom-bar-outer">'
+      +     '<div class="mom-bar-inner" style="height:' + hPct + '%"><span class="mom-bar-val">' + vWanStr + '<span class="mom-unit">万</span></span></div>'
+      +   '</div>'
+      +   '<div class="mom-bar-lbl">' + m.label + '</div>'
+      + '</div>';
   }).join('');
 
-  if (!window._mRateBar) {
-    window._mRateBar = new Chart(document.getElementById('monthlyRateBar'), {
-      type: 'bar',
-      data: { labels: months.map(m => m.label), datasets: [{ label: '整体达标率(%)', data: overall.map(v => +v.toFixed(1)), backgroundColor: '#10b981', borderRadius: 6 }] },
-      options: { responsive: true, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '%' } } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw + '%' } } } }
-    });
-  } else {
-    window._mRateBar.data.labels = months.map(m => m.label);
-    window._mRateBar.data.datasets[0].data = overall.map(v => +v.toFixed(1));
-    window._mRateBar.update();
-  }
-
-  // 门店达标率表
-  document.getElementById('rateHeader').innerHTML = months.map(m => m.label + '达标率').join(' | ');
-  document.getElementById('storeRateTable').innerHTML = M.store_order.map(s => {
-    const cells = months.map(m => {
-      const r = (m.stores[s]||0) / tgt[s] * 100;
-      const cls = r >= 100 ? 'up' : '';
-      return '<td class="' + cls + '">' + r.toFixed(1) + '%</td>';
-    }).join('');
-    return '<tr><td><b>' + s + '</b></td><td>' + (tgt[s]).toLocaleString() + '</td>' + cells + '</tr>';
-  }).join('');
-
-  monthlyRendered = true;
+  cont.innerHTML = ''
+    + '<div class="mstore-card">'
+    +   '<div class="mstore-head">' + s + ' <span class="mstore-tag">' + firstLbl + ' → ' + lastLbl + '</span></div>'
+    +   '<div class="mstore-grid">'
+    // 左：业绩总额多月份柱状图
+    +     '<div class="mblock">'
+    +       '<div class="mb-title">💰 业绩总额环比（万元）</div>'
+    +       '<div class="mom-chart">' + momBars + '</div>'
+    +     '</div>'
+    // 右：达标率子弹图
+    +     '<div class="mblock">'
+    +       '<div class="mb-title">🎯 达标率环比（目标=' + (tgt[s]/10000).toFixed(0) + '万）</div>'
+    +       '<div class="bullet-chart">'
+    +         '<div class="bullet-row">'
+    +           '<span class="bullet-label">' + firstLbl + '</span>'
+    +           '<div class="bullet-track"><div class="bullet-fill ' + bulletCls(r6) + '" style="width:' + Math.min(r6,100) + '%"><span style="font-size:13px;font-weight:700;color:#fff;">' + r6.toFixed(1) + '</span></div><div class="bullet-target-line" title="目标100%"></div></div>'
+    +           '<span class="bullet-pct ' + bulletCls(r6) + '">' + r6.toFixed(1) + '%</span>'
+    +         '</div>'
+    +         '<div class="bullet-row">'
+    +           '<span class="bullet-label">' + lastLbl + '</span>'
+    +           '<div class="bullet-track"><div class="bullet-fill ' + bulletCls(r7) + '" style="width:' + Math.min(r7,100) + '%"><span style="font-size:13px;font-weight:700;color:#fff;">' + r7.toFixed(1) + '</span></div><div class="bullet-target-line" title="目标100%"></div></div>'
+    +           '<span class="bullet-pct ' + bulletCls(r7) + '">' + r7.toFixed(1) + '%</span>'
+    +         '</div>'
+    +       '</div>'
+    +       '<div style="text-align:center;margin-top:10px;font-size:13px;color:#475569;">'
+    +         '环比 <span class="' + ppCls(pRpp) + '">' + ppStr(pRpp) + '</span>'
+    +       '</div>'
+    +       '<div class="bullet-legend">'
+    +         '<span><i style="background:linear-gradient(90deg,#84cc16,#22c55e);"></i>≥100% 达标</span>'
+    +         '<span><i style="background:linear-gradient(90deg,#f59e0b,#fbbf24);"></i>80-99% 接近</span>'
+    +         '<span><i style="background:linear-gradient(90deg,#ef4444,#f87171);"></i>&lt;80% 待提升</span>'
+    +       '</div>'
+    +     '</div>'
+    // 下：分类表格（全宽）
+    +     '<div class="mblock full-width">'
+    +       '<div class="mb-title">📋 业绩分类环比（逐类对比）</div>'
+    +       '<div class="table-wrap"><table><thead><tr><th>分类</th><th>' + firstLbl + '（元）</th><th>' + lastLbl + '（元）</th><th>环比</th></tr></thead><tbody>' + catRows + '</tbody></table></div>'
+    +     '</div>'
+    +   '</div>'
+    + '</div>';
 }
 
 // ====== DATA ======
