@@ -49,6 +49,18 @@
 
   /* Table */
   .table-wrap { overflow-x: auto; }
+
+  /* 往月环比 */
+  .monthly-intro { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:16px 20px; margin-bottom:24px; font-size:14px; color:#475569; line-height:1.7; }
+  .monthly-intro b { color:#1e293b; }
+  .muted { color:#94a3b8; font-size:12px; }
+  .mom-cards { display:flex; flex-wrap:wrap; gap:16px; margin-bottom:20px; }
+  .mom-card { flex:1; min-width:180px; background:#fff; border-radius:12px; padding:16px 20px; box-shadow:0 2px 12px rgba(0,0,0,0.06); border-left:4px solid #3b82f6; }
+  .mom-card .mc-label { font-size:13px; color:#64748b; margin-bottom:6px; }
+  .mom-card .mc-value { font-size:22px; font-weight:700; color:#1e293b; }
+  .mom-card .mc-sub { font-size:12px; margin-top:4px; color:#64748b; }
+  .up { color:#10b981; font-weight:600; }
+  .down { color:#ef4444; font-weight:600; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th { background: #f8fafc; color: #64748b; font-weight: 600; padding: 12px 16px; text-align: left; border-bottom: 2px solid #e8ecf0; }
   td { padding: 11px 16px; border-bottom: 1px solid #f1f5f9; color: #334155; }
@@ -145,6 +157,7 @@
   <div class="nav-tab" onclick="showTab('doctor')">👨‍⚕️ 开单人排名</div>
   <div class="nav-tab" onclick="showTab('category')">📋 业绩分类</div>
   <div class="nav-tab" onclick="showTab('animal')">🐾 动物种类</div>
+  <div class="nav-tab" onclick="showTab('monthly')">📈 往月环比</div>
 </div>
 
 <!-- ==================== TAB 1: 总览 ==================== -->
@@ -277,8 +290,224 @@
   </div>
 </div>
 
+<!-- ==================== TAB 6: 往月环比 ==================== -->
+<div id="tab-monthly" class="section">
+  <div class="monthly-intro">
+    📊 <b>往月环比分析</b>：以自然月为粒度，对比 <b>业绩总额</b>、<b>7 类业绩分类</b>、<b>达标率</b> 的月度变化。
+    数据层支持自动纳入未来月份（8-12 月），新增月份无需改动前端代码。
+    <span class="muted">（达标率 = 当月实收 ÷ 门店月度目标；整体达标率 = 总实收 ÷ 总目标；当前数据口径为各文件全表聚合）</span>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">📈 业绩总额环比（各月总实收额）</div>
+    <div class="mom-cards" id="totalMomCards"></div>
+    <div class="chart-wrap"><canvas id="monthlyTotalBar"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">📋 业绩分类环比（各月 × 7 类，堆叠结构）</div>
+    <div class="chart-wrap"><canvas id="monthlyCatStack"></canvas></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>业绩分类</th><th id="catHeader"></th><th>最近环比</th></tr></thead>
+        <tbody id="catMomTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">🎯 达标率环比（整体 + 各门店）</div>
+    <div class="mom-cards" id="rateMomCards"></div>
+    <div class="chart-wrap"><canvas id="monthlyRateBar"></canvas></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>门店</th><th>月度目标</th><th id="rateHeader"></th></tr></thead>
+        <tbody id="storeRateTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 
 <script>
+// ====== 往月环比数据层（auto-injected from monthly_block.txt；新增月份由 monthly_recalc.py 自动纳入） ======
+const MONTHLY = {
+  "store_target": {
+    "北京异宠": 200000,
+    "成都异宠": 270000,
+    "天河异宠": 470000,
+    "上海异宠": 430000,
+    "海珠重症": 1150000,
+    "海珠夜间": 190000,
+    "顺德中心": 550000,
+    "天河肿瘤": 650000,
+    "_total": 3910000
+  },
+  "cat_order": [
+    "门诊",
+    "化验",
+    "住院",
+    "手术",
+    "CT/MRI",
+    "X光/助扶费",
+    "B超"
+  ],
+  "store_order": [
+    "北京异宠",
+    "成都异宠",
+    "天河异宠",
+    "上海异宠",
+    "海珠重症",
+    "海珠夜间",
+    "顺德中心",
+    "天河肿瘤"
+  ],
+  "months": {
+    "2026-06": {
+      "label": "6月",
+      "total": 3102215.31,
+      "bills": 31577,
+      "cat": {
+        "门诊": 1075726.98,
+        "化验": 650656.52,
+        "住院": 571399.6,
+        "手术": 272855.29,
+        "CT/MRI": 274495.54,
+        "X光/助扶费": 181252.94,
+        "B超": 75828.44
+      },
+      "stores": {
+        "北京异宠": 158154.66,
+        "成都异宠": 261285.67,
+        "天河异宠": 383717.43,
+        "上海异宠": 445450.34,
+        "海珠重症": 812770.11,
+        "海珠夜间": 125050.8,
+        "顺德中心": 415174.64,
+        "天河肿瘤": 500611.66
+      }
+    },
+    "2026-07": {
+      "label": "7月",
+      "total": 3497506.11,
+      "bills": 32958,
+      "cat": {
+        "门诊": 1128735.39,
+        "化验": 738460.98,
+        "住院": 628057.27,
+        "手术": 384062.82,
+        "CT/MRI": 347979.0,
+        "X光/助扶费": 185123.84,
+        "B超": 85086.81
+      },
+      "stores": {
+        "北京异宠": 172050.69,
+        "成都异宠": 258845.16,
+        "天河异宠": 423920.03,
+        "上海异宠": 418241.02,
+        "海珠重症": 869932.81,
+        "海珠夜间": 166789.55,
+        "顺德中心": 476789.98,
+        "天河肿瘤": 710936.87
+      }
+    }
+  }
+};
+
+// ====== 往月环比渲染逻辑 ======
+// 注：7 类业绩分类配色复用全局 CAT_COLORS（见文件上方定义）
+function fmtWan(v){ return (v/10000).toFixed(1) + '万'; }
+function pct(cur, prev){ return prev ? ((cur - prev) / prev * 100) : null; }
+function pctStr(p){ return p === null ? '—' : (p >= 0 ? '+' : '') + p.toFixed(1) + '%'; }
+function rateCls(p){ return p === null ? '' : (p >= 0 ? 'up' : 'down'); }
+
+let monthlyRendered = false;
+function renderMonthly(){
+  if (typeof MONTHLY === 'undefined') return;
+  const M = MONTHLY;
+  const keys = Object.keys(M.months).sort();
+  const months = keys.map(k => M.months[k]);
+  const tgt = M.store_target;
+
+  // --- 模块1：业绩总额环比 ---
+  const totals = months.map(m => m.total);
+  document.getElementById('totalMomCards').innerHTML = months.map((m, i) => {
+    const p = pct(m.total, i > 0 ? months[i-1].total : null);
+    const sub = i === 0 ? '基准月' : '<span class="' + rateCls(p) + '">环比 ' + pctStr(p) + '</span>';
+    return '<div class="mom-card"><div class="mc-label">' + m.label + ' 总额</div><div class="mc-value">' + fmtWan(m.total) + '</div><div class="mc-sub">' + sub + '</div></div>';
+  }).join('');
+
+  if (!window._mTotalBar) {
+    window._mTotalBar = new Chart(document.getElementById('monthlyTotalBar'), {
+      type: 'bar',
+      data: { labels: months.map(m => m.label), datasets: [{ label: '总实收额(万元)', data: totals.map(v => +(v/10000).toFixed(1)), backgroundColor: '#3b82f6', borderRadius: 6 }] },
+      options: { responsive: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => (c.raw*10000).toLocaleString() + ' 元' } } }, scales: { y: { beginAtZero: true, title: { display: true, text: '万元' } } } }
+    });
+  } else {
+    window._mTotalBar.data.labels = months.map(m => m.label);
+    window._mTotalBar.data.datasets[0].data = totals.map(v => +(v/10000).toFixed(1));
+    window._mTotalBar.update();
+  }
+
+  // --- 模块2：业绩分类环比（堆叠） ---
+  const catOrder = M.cat_order;
+  if (!window._mCatStack) {
+    window._mCatStack = new Chart(document.getElementById('monthlyCatStack'), {
+      type: 'bar',
+      data: { labels: months.map(m => m.label), datasets: catOrder.map(cat => ({ label: cat, data: months.map(m => +((m.cat[cat]||0)/10000).toFixed(1)), backgroundColor: CAT_COLORS[cat] || '#999', borderRadius: 3 })) },
+      options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true, title: { display: true, text: '万元' } } }, plugins: { legend: { position: 'bottom' } } }
+    });
+  } else {
+    window._mCatStack.data.labels = months.map(m => m.label);
+    window._mCatStack.data.datasets.forEach((ds, i) => { ds.data = months.map(m => +((m.cat[catOrder[i]]||0)/10000).toFixed(1)); });
+    window._mCatStack.update();
+  }
+
+  // 分类环比表
+  document.getElementById('catHeader').innerHTML = months.map(m => m.label).join(' → ');
+  document.getElementById('catMomTable').innerHTML = catOrder.map(cat => {
+    const last = months.length - 1;
+    const p = pct((months[last].cat[cat]||0), last > 0 ? (months[last-1].cat[cat]||0) : null);
+    const cells = months.map(m => '<td>' + (m.cat[cat]||0).toLocaleString() + '</td>').join('');
+    return '<tr><td><b>' + cat + '</b></td>' + cells + '<td class="' + rateCls(p) + '">' + pctStr(p) + '</td></tr>';
+  }).join('');
+
+  // --- 模块3：达标率环比 ---
+  const overall = months.map(m => m.total / tgt._total * 100);
+  document.getElementById('rateMomCards').innerHTML = months.map((m, i) => {
+    const cur = m.total / tgt._total * 100;
+    const prev = i > 0 ? months[i-1].total / tgt._total * 100 : null;
+    const p = pct(cur, prev);
+    const sub = i === 0 ? '基准月' : '<span class="' + rateCls(p) + '">环比 ' + pctStr(p) + '</span>';
+    return '<div class="mom-card"><div class="mc-label">' + m.label + ' 整体达标率</div><div class="mc-value">' + cur.toFixed(1) + '%</div><div class="mc-sub">' + sub + '</div></div>';
+  }).join('');
+
+  if (!window._mRateBar) {
+    window._mRateBar = new Chart(document.getElementById('monthlyRateBar'), {
+      type: 'bar',
+      data: { labels: months.map(m => m.label), datasets: [{ label: '整体达标率(%)', data: overall.map(v => +v.toFixed(1)), backgroundColor: '#10b981', borderRadius: 6 }] },
+      options: { responsive: true, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '%' } } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw + '%' } } } }
+    });
+  } else {
+    window._mRateBar.data.labels = months.map(m => m.label);
+    window._mRateBar.data.datasets[0].data = overall.map(v => +v.toFixed(1));
+    window._mRateBar.update();
+  }
+
+  // 门店达标率表
+  document.getElementById('rateHeader').innerHTML = months.map(m => m.label + '达标率').join(' | ');
+  document.getElementById('storeRateTable').innerHTML = M.store_order.map(s => {
+    const cells = months.map(m => {
+      const r = (m.stores[s]||0) / tgt[s] * 100;
+      const cls = r >= 100 ? 'up' : '';
+      return '<td class="' + cls + '">' + r.toFixed(1) + '%</td>';
+    }).join('');
+    return '<tr><td><b>' + s + '</b></td><td>' + (tgt[s]).toLocaleString() + '</td>' + cells + '</tr>';
+  }).join('');
+
+  monthlyRendered = true;
+}
+
 // ====== DATA ======
 const DATA = {
   total_bills: 32958,
@@ -515,8 +744,13 @@ const fmtW = (n) => '¥' + (n/10000).toFixed(1) + '万';
 function showTab(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
+  var el = document.getElementById('tab-' + name);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(function(t){
+    var oc = t.getAttribute('onclick') || '';
+    if (oc.indexOf("'" + name + "'") >= 0) t.classList.add('active');
+  });
+  if (name === 'monthly') renderMonthly();
 }
 
 // ====== HELPERS ======
