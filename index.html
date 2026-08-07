@@ -1226,7 +1226,7 @@ function getStoreBillsMap() {
 (function() {
   const top8 = DATA.animal_amt.slice(0,8);
   const animalColors = ANIMAL_COLORS.slice(0,8);
-  const maxVal = top8[0].金额;
+  const maxVal = DATA.total_amt;
   new Chart(document.getElementById('animalBar'), {
     type: 'bar',
     data: {
@@ -1239,7 +1239,7 @@ function getStoreBillsMap() {
         legend: { display: false },
         tooltip: { callbacks: { label: ctx => {
           const pct = (ctx.parsed.x / maxVal * 100).toFixed(1);
-          return top8[ctx.dataIndex].种类 + ': ' + fmt(ctx.parsed.x) + '（占TOP1的' + pct + '%）';
+          return top8[ctx.dataIndex].种类 + ': ' + fmt(ctx.parsed.x) + '（占总业绩的' + pct + '%）';
         }}}
       },
       scales: {
