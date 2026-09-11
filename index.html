@@ -204,7 +204,7 @@
   <div class="nav-tab" onclick="showTab('store')">🏪 门店分析</div>
   <div class="nav-tab" onclick="showTab('doctor')">👨‍⚕️ 开单人业绩数据</div>
   <div class="nav-tab" onclick="showTab('case')">🩺 病例量分析</div>
-  <div class="nav-tab" onclick="showTab('animal')">🐾 动物种类</div>
+  <div class="nav-tab" onclick="showTab('doctorcase')">👩‍⚕️ 医生病例量</div>
   <div class="nav-tab" onclick="showTab('monthly')">📈 往月环比</div>
 </div>
 
@@ -322,26 +322,22 @@
   </div>
 </div>
 
-<!-- ==================== TAB 5: 动物种类 ==================== -->
-<div id="tab-animal" class="section">
-  <div class="two-col">
-    <div class="chart-card">
-      <div class="chart-title">动物种类消费排名 TOP 15</div>
-      <div class="chart-wrap"><canvas id="animalBarFull"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">动物种类消费占比</div>
-      <div class="chart-wrap"><canvas id="animalDoughnut"></canvas></div>
+<!-- ==================== TAB 5: 医生病例量 ==================== -->
+<div id="tab-doctorcase" class="section">
+  <div class="store-selector" id="docCaseStoreSelector"></div>
+  <div class="kpi-grid" id="docCaseKpiGrid"></div>
+  <div class="chart-card">
+    <div class="chart-title" id="docCaseTableTitle">医生病例量（全部门店）</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>排名</th><th>门店</th><th>医生</th><th>病例数</th></tr></thead>
+        <tbody id="docCaseBody"></tbody>
+      </table>
     </div>
   </div>
   <div class="chart-card">
-    <div class="chart-title">动物种类消费明细</div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>排名</th><th>种类</th><th>总消费额</th><th>占比</th><th>可视化</th></tr></thead>
-        <tbody id="animalTableBody"></tbody>
-      </table>
-    </div>
+    <div class="chart-title">医生病例数对比（Top 15）</div>
+    <div class="chart-wrap" style="height:540px;"><canvas id="docCaseBar"></canvas></div>
   </div>
 </div>
 
@@ -981,6 +977,101 @@ const DATA = {
     { "门店": "北京异宠", "病例数": 70 },
     { "门店": "海珠夜间", "病例数": 45 }
   ],
+  doctor_case: [
+    { "门店": "北京异宠", "开单人": "唐国梁", "病例数": 51 },
+    { "门店": "北京异宠", "开单人": "王妍博", "病例数": 19 },
+    { "门店": "成都异宠", "开单人": "帅敏", "病例数": 59 },
+    { "门店": "成都异宠", "开单人": "杨阳", "病例数": 22 },
+    { "门店": "成都异宠", "开单人": "阎雪松", "病例数": 21 },
+    { "门店": "成都异宠", "开单人": "王鑫", "病例数": 3 },
+    { "门店": "成都异宠", "开单人": "2025成都前台回访", "病例数": 2 },
+    { "门店": "海珠夜间", "开单人": "朱自洲", "病例数": 18 },
+    { "门店": "海珠夜间", "开单人": "林志轩", "病例数": 13 },
+    { "门店": "海珠夜间", "开单人": "何骏贤", "病例数": 12 },
+    { "门店": "海珠夜间", "开单人": "0227海珠回访", "病例数": 2 },
+    { "门店": "海珠夜间", "开单人": "0220海珠回访", "病例数": 1 },
+    { "门店": "海珠重症", "开单人": "张飏", "病例数": 67 },
+    { "门店": "海珠重症", "开单人": "叶志昂", "病例数": 42 },
+    { "门店": "海珠重症", "开单人": "李泽贤", "病例数": 32 },
+    { "门店": "海珠重症", "开单人": "0227海珠回访", "病例数": 32 },
+    { "门店": "海珠重症", "开单人": "林俊华", "病例数": 29 },
+    { "门店": "海珠重症", "开单人": "何家杰", "病例数": 20 },
+    { "门店": "海珠重症", "开单人": "董继凤", "病例数": 18 },
+    { "门店": "海珠重症", "开单人": "蔡晓霞", "病例数": 9 },
+    { "门店": "海珠重症", "开单人": "朱华君", "病例数": 7 },
+    { "门店": "海珠重症", "开单人": "祁嘉伦", "病例数": 2 },
+    { "门店": "海珠重症", "开单人": "黄丽珊", "病例数": 1 },
+    { "门店": "上海异宠", "开单人": "张弦", "病例数": 58 },
+    { "门店": "上海异宠", "开单人": "翁治天", "病例数": 49 },
+    { "门店": "上海异宠", "开单人": "陆越", "病例数": 44 },
+    { "门店": "上海异宠", "开单人": "朱梨", "病例数": 9 },
+    { "门店": "上海异宠", "开单人": "0226上海前台回访", "病例数": 1 },
+    { "门店": "顺德中心", "开单人": "张迪雄", "病例数": 49 },
+    { "门店": "顺德中心", "开单人": "陈佩琳", "病例数": 49 },
+    { "门店": "顺德中心", "开单人": "0219顺德回访", "病例数": 34 },
+    { "门店": "顺德中心", "开单人": "朱华君", "病例数": 27 },
+    { "门店": "顺德中心", "开单人": "杨沁颖", "病例数": 27 },
+    { "门店": "顺德中心", "开单人": "何慧妍", "病例数": 24 },
+    { "门店": "天河肿瘤", "开单人": "凌晓理", "病例数": 42 },
+    { "门店": "天河肿瘤", "开单人": "黄洁明", "病例数": 34 },
+    { "门店": "天河肿瘤", "开单人": "曹洁", "病例数": 28 },
+    { "门店": "天河肿瘤", "开单人": "杨秀璇", "病例数": 28 },
+    { "门店": "天河肿瘤", "开单人": "卢舒勉", "病例数": 19 },
+    { "门店": "天河肿瘤", "开单人": "卢楚滢", "病例数": 18 },
+    { "门店": "天河肿瘤", "开单人": "0224肿瘤中医专科回访", "病例数": 15 },
+    { "门店": "天河肿瘤", "开单人": "朱华君", "病例数": 6 },
+    { "门店": "天河异宠", "开单人": "邹梓俊", "病例数": 72 },
+    { "门店": "天河异宠", "开单人": "谢冠晖", "病例数": 50 },
+    { "门店": "天河异宠", "开单人": "罗振宇", "病例数": 33 },
+    { "门店": "天河异宠", "开单人": "黄素芸", "病例数": 30 },
+    { "门店": "天河异宠", "开单人": "0218天河回访", "病例数": 3 }
+  ],
+  doctor_case_total: [
+    { "开单人": "邹梓俊", "病例数": 72, "门店": "天河异宠" },
+    { "开单人": "张飏", "病例数": 67, "门店": "海珠重症" },
+    { "开单人": "帅敏", "病例数": 59, "门店": "成都异宠" },
+    { "开单人": "张弦", "病例数": 58, "门店": "上海异宠" },
+    { "开单人": "唐国梁", "病例数": 51, "门店": "北京异宠" },
+    { "开单人": "谢冠晖", "病例数": 50, "门店": "天河异宠" },
+    { "开单人": "张迪雄", "病例数": 49, "门店": "顺德中心" },
+    { "开单人": "陈佩琳", "病例数": 49, "门店": "顺德中心" },
+    { "开单人": "翁治天", "病例数": 49, "门店": "上海异宠" },
+    { "开单人": "陆越", "病例数": 44, "门店": "上海异宠" },
+    { "开单人": "凌晓理", "病例数": 42, "门店": "天河肿瘤" },
+    { "开单人": "叶志昂", "病例数": 42, "门店": "海珠重症" },
+    { "开单人": "朱华君", "病例数": 39, "门店": "天河肿瘤/海珠重症/顺德中心" },
+    { "开单人": "0219顺德回访", "病例数": 34, "门店": "顺德中心" },
+    { "开单人": "黄洁明", "病例数": 34, "门店": "天河肿瘤" },
+    { "开单人": "0227海珠回访", "病例数": 34, "门店": "海珠夜间/海珠重症" },
+    { "开单人": "罗振宇", "病例数": 33, "门店": "天河异宠" },
+    { "开单人": "李泽贤", "病例数": 32, "门店": "海珠重症" },
+    { "开单人": "黄素芸", "病例数": 30, "门店": "天河异宠" },
+    { "开单人": "林俊华", "病例数": 29, "门店": "海珠重症" },
+    { "开单人": "曹洁", "病例数": 28, "门店": "天河肿瘤" },
+    { "开单人": "杨秀璇", "病例数": 28, "门店": "天河肿瘤" },
+    { "开单人": "杨沁颖", "病例数": 27, "门店": "顺德中心" },
+    { "开单人": "何慧妍", "病例数": 24, "门店": "顺德中心" },
+    { "开单人": "杨阳", "病例数": 22, "门店": "成都异宠" },
+    { "开单人": "阎雪松", "病例数": 21, "门店": "成都异宠" },
+    { "开单人": "何家杰", "病例数": 20, "门店": "海珠重症" },
+    { "开单人": "卢舒勉", "病例数": 19, "门店": "天河肿瘤" },
+    { "开单人": "王妍博", "病例数": 19, "门店": "北京异宠" },
+    { "开单人": "卢楚滢", "病例数": 18, "门店": "天河肿瘤" },
+    { "开单人": "董继凤", "病例数": 18, "门店": "海珠重症" },
+    { "开单人": "朱自洲", "病例数": 18, "门店": "海珠夜间" },
+    { "开单人": "0224肿瘤中医专科回访", "病例数": 15, "门店": "天河肿瘤" },
+    { "开单人": "林志轩", "病例数": 13, "门店": "海珠夜间" },
+    { "开单人": "何骏贤", "病例数": 12, "门店": "海珠夜间" },
+    { "开单人": "朱梨", "病例数": 9, "门店": "上海异宠" },
+    { "开单人": "蔡晓霞", "病例数": 9, "门店": "海珠重症" },
+    { "开单人": "王鑫", "病例数": 3, "门店": "成都异宠" },
+    { "开单人": "0218天河回访", "病例数": 3, "门店": "天河异宠" },
+    { "开单人": "2025成都前台回访", "病例数": 2, "门店": "成都异宠" },
+    { "开单人": "祁嘉伦", "病例数": 2, "门店": "海珠重症" },
+    { "开单人": "0226上海前台回访", "病例数": 1, "门店": "上海异宠" },
+    { "开单人": "0220海珠回访", "病例数": 1, "门店": "海珠夜间" },
+    { "开单人": "黄丽珊", "病例数": 1, "门店": "海珠重症" }
+  ],
 store_rank: [
     { "门店": "海珠重症", "总实收额": 256541.06, "排名": 1 },
     { "门店": "天河肿瘤", "总实收额": 165429.81, "排名": 2 },
@@ -1592,48 +1683,68 @@ function buildDocTable(filterStore) {
 })();
 
 
-// ====== ANIMAL CHARTS ======
-(function() {
-  new Chart(document.getElementById('animalBarFull'), {
-    type: 'bar',
-    data: {
-      labels: DATA.animal_amt.map(r => r.种类),
-      datasets: [{ data: DATA.animal_amt.map(r => r.金额), backgroundColor: ANIMAL_COLORS, borderRadius: 6, borderSkipped: false }]
-    },
-    options: {
-      indexAxis: 'y', responsive: true,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.x) } } },
-      scales: { x: { ticks: { callback: v => fmtW(v) }, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
-    }
-  });
-  new Chart(document.getElementById('animalDoughnut'), {
-    type: 'doughnut',
-    data: {
-      labels: DATA.animal_amt.slice(0,8).map(r => r.种类),
-      datasets: [{ data: DATA.animal_amt.slice(0,8).map(r => r.金额), backgroundColor: ANIMAL_COLORS.slice(0,8), borderWidth: 2, borderColor: '#fff' }]
-    },
-    options: {
-      responsive: true, cutout: '55%',
-      plugins: { legend: { position: 'right' }, tooltip: { callbacks: { label: ctx => ctx.label + ': ' + fmt(ctx.parsed) } } }
-    }
-  });
-
-  const totalAnimal = DATA.animal_amt.reduce((a,b) => a+b.金额, 0);
-  const tbody = document.getElementById('animalTableBody');
-  DATA.animal_amt.forEach((row, i) => {
-    const pct = (row.金额 / totalAnimal * 100).toFixed(1);
-    const barW = Math.round(row.金额 / DATA.animal_amt[0].金额 * 180);
+// ====== DOCTOR CASE ANALYSIS ======
+let docCaseChart = null;
+function buildDocCaseTable(filterStore) {
+  let rows;
+  if (filterStore === '全部') {
+    rows = (DATA.doctor_case_total || []).map(d => ({ 门店: d.门店, 开单人: d.开单人, 病例数: d.病例数 }));
+  } else {
+    rows = (DATA.doctor_case || [])
+      .filter(r => r.门店 === filterStore)
+      .map(r => ({ 门店: r.门店, 开单人: r.开单人, 病例数: r.病例数 }));
+  }
+  rows.sort((a, b) => b.病例数 - a.病例数);
+  const tbody = document.getElementById('docCaseBody');
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
     const rankClass = i < 1 ? 'rank-1' : i < 2 ? 'rank-2' : i < 3 ? 'rank-3' : 'rank-n';
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><span class="rank-badge ${rankClass}">${i+1}</span></td>
-      <td><strong>${row.种类}</strong></td>
-      <td class="amount">${fmt(row.金额)}</td>
-      <td>${pct}%</td>
-      <td><div class="mini-bar-wrap"><div class="mini-bar" style="width:${barW}px;background:${ANIMAL_COLORS[i]};"></div><span class="bar-label">${pct}%</span></div></td>
+      <td><strong>${r.门店}</strong></td>
+      <td>${r.开单人}</td>
+      <td>${r.病例数.toLocaleString()}</td>
     `;
     tbody.appendChild(tr);
   });
+  const totalCases = rows.reduce((a, b) => a + b.病例数, 0);
+  document.getElementById('docCaseTableTitle').textContent = '医生病例量（' + filterStore + '）· 共 ' + rows.length + ' 人';
+  document.getElementById('docCaseKpiGrid').innerHTML = `
+    <div class="kpi-card blue"><div class="kpi-label">医生人数</div><div class="kpi-value">${rows.length}</div><div class="kpi-sub">${filterStore}</div></div>
+    <div class="kpi-card green"><div class="kpi-label">总病例数</div><div class="kpi-value">${totalCases.toLocaleString()}</div><div class="kpi-sub">电话|宠物昵称去重</div></div>
+    <div class="kpi-card orange"><div class="kpi-label">数据跨度</div><div class="kpi-value">${parseInt(DATA.date_range.end.split('-')[2], 10)} 天</div><div class="kpi-sub">${DATA.date_range.start} — ${DATA.date_range.end}</div></div>
+  `;
+  const top = rows.slice(0, 15).slice().reverse();
+  if (docCaseChart) docCaseChart.destroy();
+  docCaseChart = new Chart(document.getElementById('docCaseBar'), {
+    type: 'bar',
+    data: {
+      labels: top.map(r => r.开单人),
+      datasets: [{ data: top.map(r => r.病例数), backgroundColor: '#6366f1', borderRadius: 8, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.x + ' 例' } } },
+      scales: { x: { ticks: { callback: v => v + ' 例' }, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
+    }
+  });
+}
+(function() {
+  const selector = document.getElementById('docCaseStoreSelector');
+  const stores = ['全部', ...DATA.store_rank.map(r => r.门店)];
+  stores.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'store-btn' + (s === '全部' ? ' active' : '');
+    btn.textContent = s;
+    btn.onclick = () => {
+      document.querySelectorAll('#docCaseStoreSelector .store-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      buildDocCaseTable(s);
+    };
+    selector.appendChild(btn);
+  });
+  buildDocCaseTable('全部');
 })();
 </script>
 
