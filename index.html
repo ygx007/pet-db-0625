@@ -171,6 +171,8 @@
   .rate-bar-fill { position: absolute; top: 0; left: 0; height: 100%; border-radius: 6px; transition: width 0.4s ease; }
   .rate-bar-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
   .rate-bar-fill.red { background: linear-gradient(90deg, #ef4444, #f87171); }
+  .rate-bar-bg.track-green { background: #d1fae5; }
+  .rate-bar-bg.track-red { background: #fee2e2; }
   .rate-bar-text { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; height: 100%; font-size: 13px; font-weight: 700; color: #1e293b; }
 </style>
 </head>
@@ -1368,14 +1370,24 @@ function getStoreBillsMap() {
   DATA.store_rank.forEach(row => {
     const tgt = STORE_TARGETS[row.门店] || 0;
     const sEst = row.总实收额 / days * 30;
-    const sPct = tgt > 0 ? (sEst / tgt * 100).toFixed(1) : '-';
+    const hasTgt = tgt > 0;
+    const sRate = hasTgt ? (sEst / tgt * 100) : 0;
+    const barColor = sRate >= 100 ? 'green' : 'red';
+    const trackClass = sRate >= 100 ? 'track-green' : 'track-red';
+    const barWidth = Math.min(sRate, 100);
+    const rateText = hasTgt ? sRate.toFixed(1) + '%' : '-';
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>${row.门店}</strong></td>
       <td class="amount">${fmt(row.总实收额)}</td>
       <td class="amount">${fmt(Math.round(sEst))}</td>
       <td class="amount">${fmt(tgt)}</td>
-      <td>${sPct}${sPct !== '-' ? '%' : ''}</td>
+      <td class="rate-bar-cell">
+        ${hasTgt ? `<div class="rate-bar-bg ${trackClass}">
+          <div class="rate-bar-fill ${barColor}" style="width:${barWidth}%;"></div>
+          <div class="rate-bar-text">${rateText}</div>
+        </div>` : '-'}
+      </td>
     `;
     tbody.appendChild(tr);
   });
@@ -1477,6 +1489,7 @@ function buildDocTable(filterStore) {
     const rate = target > 0 ? (row.金额 / target * 100) : 0;
     const achieved = rate >= 100;
     const barColor = achieved ? 'green' : 'red';
+    const trackClass = achieved ? 'track-green' : 'track-red';
     const barWidth = Math.min(rate, 100);
     const rateText = rate.toFixed(1) + '%';
     const targetText = fmt(target);
@@ -1491,7 +1504,7 @@ function buildDocTable(filterStore) {
       <td class="amount">${targetText}</td>
       <td class="amount">${amtText}</td>
       <td class="rate-bar-cell">
-        <div class="rate-bar-bg">
+        <div class="rate-bar-bg ${trackClass}">
           <div class="rate-bar-fill ${barColor}" style="width:${barWidth}%;"></div>
           <div class="rate-bar-text">${rateText}</div>
         </div>
