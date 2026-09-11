@@ -249,10 +249,17 @@
     <div class="donut-grid" id="targetDonutGrid"></div>
   </div>
 
-  <!-- 动物种类消费 TOP 8（铺满） -->
+  <!-- 预估当月业绩（铺满） -->
   <div class="chart-card">
-    <div class="chart-title">动物种类消费金额 TOP 8</div>
-    <div class="chart-wrap" style="height:420px;"><canvas id="animalBar"></canvas></div>
+    <div class="chart-title" id="estTitle">预估当月业绩（当前业绩 ÷ 截止天数 × 30天）</div>
+    <div class="kpi-grid" id="estKpiGrid"></div>
+    <div class="est-note" id="estNote" style="margin-top:14px;padding:13px 16px;background:#f8fafc;border-left:4px solid #10b981;border-radius:8px;font-size:14px;color:#334155;line-height:1.7;"></div>
+    <div class="table-wrap" style="margin-top:16px;">
+      <table>
+        <thead><tr><th>门店</th><th>当前业绩</th><th>预估当月业绩</th><th>月目标</th><th>预计达标率</th></tr></thead>
+        <tbody id="estBody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -1337,31 +1344,40 @@ function getStoreBillsMap() {
   });
 })();
 
-// ====== CHART 4: Animal Bar TOP 8 (full width) ======
+// ====== 预估当月业绩（原动物TOP8位置） ======
 (function() {
-  const top8 = DATA.animal_amt.slice(0,8);
-  const animalColors = ANIMAL_COLORS.slice(0,8);
-  const maxVal = DATA.total_amt;
-  new Chart(document.getElementById('animalBar'), {
-    type: 'bar',
-    data: {
-      labels: top8.map(r => r.种类),
-      datasets: [{ data: top8.map(r => r.金额), backgroundColor: animalColors, borderRadius: 8, borderSkipped: false, barThickness: 30 }]
-    },
-    options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => {
-          const pct = (ctx.parsed.x / maxVal * 100).toFixed(1);
-          return top8[ctx.dataIndex].种类 + ': ' + fmt(ctx.parsed.x) + '（占总业绩的' + pct + '%）';
-        }}}
-      },
-      scales: {
-        x: { min: 0, max: 1300000, ticks: { callback: v => fmtW(v), font: { size: 12 } }, grid: { color: '#f1f5f9' } },
-        y: { ticks: { font: { size: 13, weight: '600' }, color: '#334155' }, grid: { display: false } }
-      }
-    }
+  const total = DATA.total_amt;
+  const days = parseInt(DATA.date_range.end.split('-')[2], 10); // 当月截止日（start恒为1号）
+  const est = total / days * 30;
+  const monthTarget = Object.values(STORE_TARGETS).reduce((a, b) => a + b, 0);
+  const pct = monthTarget > 0 ? (est / monthTarget * 100).toFixed(1) : '-';
+
+  document.getElementById('estTitle').textContent =
+    '预估当月业绩（' + days + '天累计 ÷ ' + days + '天 × 30天）';
+
+  document.getElementById('estKpiGrid').innerHTML = `
+    <div class="kpi-card blue"><div class="kpi-label">当前累计业绩</div><div class="kpi-value">${fmtW(total)}</div><div class="kpi-sub">${fmt(total)} 元</div></div>
+    <div class="kpi-card purple"><div class="kpi-label">截止天数</div><div class="kpi-value">${days} 天</div><div class="kpi-sub">${DATA.date_range.start} — ${DATA.date_range.end}</div></div>
+    <div class="kpi-card green"><div class="kpi-label">预估当月业绩</div><div class="kpi-value">${fmtW(est)}</div><div class="kpi-sub">${fmtWan(total)} ÷ ${days}天 × 30天</div></div>
+  `;
+
+  document.getElementById('estNote').innerHTML =
+    '按当前日均业绩推算，全店当月预估约 <strong>' + fmtW(est) + '</strong>（' + fmt(Math.round(est)) + ' 元）；对比月度目标 <strong>' + fmtW(monthTarget) + '</strong>，预计整体达标率约 <strong>' + pct + '%</strong>。';
+
+  const tbody = document.getElementById('estBody');
+  DATA.store_rank.forEach(row => {
+    const tgt = STORE_TARGETS[row.门店] || 0;
+    const sEst = row.总实收额 / days * 30;
+    const sPct = tgt > 0 ? (sEst / tgt * 100).toFixed(1) : '-';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${row.门店}</strong></td>
+      <td class="amount">${fmt(row.总实收额)}</td>
+      <td class="amount">${fmt(Math.round(sEst))}</td>
+      <td class="amount">${fmt(tgt)}</td>
+      <td>${sPct}${sPct !== '-' ? '%' : ''}</td>
+    `;
+    tbody.appendChild(tr);
   });
 })();
 
