@@ -1586,7 +1586,7 @@ function buildDocTable(filterStore) {
       indexAxis: 'y',
       responsive: true,
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.x + ' 例' } } },
-      scales: { x: { ticks: { callback: v => v + ' 例' }, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
+      scales: { x: { min: 0, max: 800, ticks: { stepSize: 100, callback: v => v + ' 例' }, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
     }
   });
 })();
