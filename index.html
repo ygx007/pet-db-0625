@@ -203,7 +203,7 @@
   <div class="nav-tab active" onclick="showTab('overview')">📊 总览</div>
   <div class="nav-tab" onclick="showTab('store')">🏪 门店分析</div>
   <div class="nav-tab" onclick="showTab('doctor')">👨‍⚕️ 开单人业绩数据</div>
-  <div class="nav-tab" onclick="showTab('category')">📋 业绩分类</div>
+  <div class="nav-tab" onclick="showTab('case')">🩺 病例量分析</div>
   <div class="nav-tab" onclick="showTab('animal')">🐾 动物种类</div>
   <div class="nav-tab" onclick="showTab('monthly')">📈 往月环比</div>
 </div>
@@ -304,21 +304,21 @@
   </div>
 </div>
 
-<!-- ==================== TAB 4: 业绩分类 ==================== -->
-<div id="tab-category" class="section">
-  <div class="two-col">
-    <div class="chart-card">
-      <div class="chart-title">业绩分类收入排名</div>
-      <div class="chart-wrap"><canvas id="catBar"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">业绩分类占比</div>
-      <div class="chart-wrap"><canvas id="catDoughnut"></canvas></div>
+<!-- ==================== TAB 4: 病例量分析 ==================== -->
+<div id="tab-case" class="section">
+  <div class="kpi-grid" id="caseKpiGrid"></div>
+  <div class="chart-card">
+    <div class="chart-title">各门店病例量与平均客单价</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>排名</th><th>门店</th><th>病例数</th><th>总实收额</th><th>平均客单价</th></tr></thead>
+        <tbody id="caseBody"></tbody>
+      </table>
     </div>
   </div>
   <div class="chart-card">
-    <div class="chart-title">各业绩分类在各门店的分布</div>
-    <div class="chart-wrap"><canvas id="catStoreBar" style="max-height:400px;"></canvas></div>
+    <div class="chart-title">各门店病例数对比</div>
+    <div class="chart-wrap" style="height:380px;"><canvas id="caseBar"></canvas></div>
   </div>
 </div>
 
@@ -970,6 +970,17 @@ const DATA = {
   total_bills: 9320,
   total_amt: 1008264.60,
   date_range: { start: '2026-09-01', end: '2026-09-10' },
+  case_total: 1015,
+  case_by_store: [
+    { "门店": "海珠重症", "病例数": 211 },
+    { "门店": "天河肿瘤", "病例数": 148 },
+    { "门店": "天河异宠", "病例数": 144 },
+    { "门店": "上海异宠", "病例数": 149 },
+    { "门店": "顺德中心", "病例数": 171 },
+    { "门店": "成都异宠", "病例数": 95 },
+    { "门店": "北京异宠", "病例数": 70 },
+    { "门店": "海珠夜间", "病例数": 45 }
+  ],
 store_rank: [
     { "门店": "海珠重症", "总实收额": 256541.06, "排名": 1 },
     { "门店": "天河肿瘤", "总实收额": 165429.81, "排名": 2 },
@@ -1534,51 +1545,47 @@ function buildDocTable(filterStore) {
   buildDocTable('全部');
 })();
 
-// ====== CAT BAR + DOUGHNUT ======
+// ====== CASE ANALYSIS ======
 (function() {
-  new Chart(document.getElementById('catBar'), {
+  const totalCase = DATA.case_total || 0;
+  const totalAmt = DATA.total_amt;
+  const aov = totalCase > 0 ? totalAmt / totalCase : 0;
+  const days = parseInt(DATA.date_range.end.split('-')[2], 10);
+  document.getElementById('caseKpiGrid').innerHTML = `
+    <div class="kpi-card blue"><div class="kpi-label">总病例数</div><div class="kpi-value">${totalCase.toLocaleString()}</div><div class="kpi-sub">电话|宠物昵称去重</div></div>
+    <div class="kpi-card green"><div class="kpi-label">总平均客单价</div><div class="kpi-value">${fmt(aov)}</div><div class="kpi-sub">${fmt(totalAmt)} ÷ ${totalCase.toLocaleString()}例</div></div>
+    <div class="kpi-card purple"><div class="kpi-label">总实收额</div><div class="kpi-value">¥${fmtW(totalAmt)}</div><div class="kpi-sub">${fmt(totalAmt)}元</div></div>
+    <div class="kpi-card orange"><div class="kpi-label">数据跨度</div><div class="kpi-value">${days} 天</div><div class="kpi-sub">${DATA.date_range.start} — ${DATA.date_range.end}</div></div>
+  `;
+  const amtByStore = {};
+  DATA.store_rank.forEach(r => { amtByStore[r.门店] = r.总实收额; });
+  const rows = (DATA.case_by_store || []).map(c => ({
+    门店: c.门店, 病例数: c.病例数, 总实收额: amtByStore[c.门店] || 0
+  })).sort((a, b) => b.病例数 - a.病例数);
+  const tbody = document.getElementById('caseBody');
+  rows.forEach((r, i) => {
+    const aovS = r.病例数 > 0 ? r.总实收额 / r.病例数 : 0;
+    const rankClass = i < 1 ? 'rank-1' : i < 2 ? 'rank-2' : i < 3 ? 'rank-3' : 'rank-n';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="rank-badge ${rankClass}">${i+1}</span></td>
+      <td><strong>${r.门店}</strong></td>
+      <td>${r.病例数.toLocaleString()}</td>
+      <td class="amount">${fmt(r.总实收额)}</td>
+      <td class="amount">${fmt(aovS)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  new Chart(document.getElementById('caseBar'), {
     type: 'bar',
     data: {
-      labels: DATA.cat_amt.map(r => r.业绩分类),
-      datasets: [{ data: DATA.cat_amt.map(r => r.金额), backgroundColor: Object.values(CAT_COLORS), borderRadius: 8, borderSkipped: false }]
+      labels: rows.map(r => r.门店),
+      datasets: [{ data: rows.map(r => r.病例数), backgroundColor: '#6366f1', borderRadius: 8, borderSkipped: false }]
     },
     options: {
       responsive: true,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.y) } } },
-      scales: { y: { ticks: { callback: v => fmtW(v) }, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
-    }
-  });
-  new Chart(document.getElementById('catDoughnut'), {
-    type: 'doughnut',
-    data: {
-      labels: DATA.cat_amt.map(r => r.业绩分类),
-      datasets: [{ data: DATA.cat_amt.map(r => r.金额), backgroundColor: Object.values(CAT_COLORS), borderWidth: 3, borderColor: '#fff' }]
-    },
-    options: {
-      responsive: true, cutout: '60%',
-      plugins: { legend: { position: 'right' }, tooltip: { callbacks: { label: ctx => ctx.label + ': ' + fmt(ctx.parsed) } } }
-    }
-  });
-})();
-
-// ====== CAT STORE BAR ======
-(function() {
-  const stores = DATA.store_rank.map(r => r.门店);
-  const catMap = getStoreCatMap();
-  const datasets = DATA.cat_amt.map((cat, i) => ({
-    label: cat.业绩分类,
-    data: stores.map(s => (catMap[s]||{})[cat.业绩分类] || 0),
-    backgroundColor: Object.values(CAT_COLORS)[i],
-    borderRadius: 4,
-    borderSkipped: false
-  }));
-  new Chart(document.getElementById('catStoreBar'), {
-    type: 'bar',
-    data: { labels: stores, datasets },
-    options: {
-      responsive: true,
-      plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } } },
-      scales: { x: { grid: { display: false } }, y: { ticks: { callback: v => fmtW(v) }, grid: { color: '#f1f5f9' } } }
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y + ' 例' } } },
+      scales: { y: { ticks: { callback: v => v + ' 例' }, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
     }
   });
 })();
