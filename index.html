@@ -272,7 +272,7 @@
     <div class="table-wrap">
       <table id="storeRankTable">
         <thead>
-          <tr><th>排名</th><th>门店</th><th>总实收额</th><th>账单数</th><th>门诊</th><th>化验</th><th>住院</th><th>手术</th><th>CT/MRI</th><th>X光/助扶</th><th>B超</th></tr>
+          <tr><th>排名</th><th>门店</th><th>总实收额</th><th>门诊</th><th>化验</th><th>住院</th><th>手术</th><th>CT/MRI</th><th>X光/助扶</th><th>B超</th></tr>
         </thead>
         <tbody id="storeRankBody"></tbody>
       </table>
@@ -1396,7 +1396,6 @@ function getStoreBillsMap() {
 // ====== STORE RANK TABLE ======
 (function() {
   const catMap = getStoreCatMap();
-  const billsMap = getStoreBillsMap();
   const cats = ['门诊','化验','住院','手术','CT/MRI','X光/助扶费','B超'];
   const tbody = document.getElementById('storeRankBody');
   DATA.store_rank.forEach(row => {
@@ -1407,7 +1406,6 @@ function getStoreBillsMap() {
       <td><span class="rank-badge ${rankClass}">${row.排名}</span></td>
       <td><strong>${row.门店}</strong></td>
       <td class="amount">${fmt(row.总实收额)}</td>
-      <td>${(billsMap[row.门店]||0).toLocaleString()}</td>
       ${cats.map(c => `<td>${sc[c] ? fmt(sc[c]) : '-'}</td>`).join('')}
     `;
     tbody.appendChild(tr);
