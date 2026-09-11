@@ -1235,7 +1235,7 @@ function getStoreBillsMap() {
         datalabels: { display: false }
       },
       scales: {
-        x: { min: 0, max: 1300000, ticks: { callback: v => fmtW(v), font: { size: 12 } }, grid: { color: '#f1f5f9' } },
+        x: { min: 0, max: 1100000, ticks: { stepSize: 200000, callback: v => fmtW(v), font: { size: 12 } }, grid: { color: '#f1f5f9' } },
         y: { ticks: { font: { size: 13, weight: '600' }, color: '#334155' }, grid: { display: false } }
       }
     }
