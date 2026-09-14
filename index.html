@@ -1020,7 +1020,6 @@ const DATA = {
     { "门店": "海珠重症", "开单人": "覃嘉伦", "病例数": 2 },
     { "门店": "海珠重症", "开单人": "黄丽珊", "病例数": 1 },
     { "门店": "海珠重症", "开单人": "阳婷", "病例数": 1 },
-    { "门店": "海珠重症", "开单人": "陈佩玲", "病例数": 1 },
     { "门店": "顺德中心", "开单人": "张迪雄", "病例数": 56 },
     { "门店": "顺德中心", "开单人": "陈佩玲", "病例数": 55 },
     { "门店": "顺德中心", "开单人": "0219顺德回访", "病例数": 43 },
@@ -1038,7 +1037,7 @@ const DATA = {
     { "开单人": "陆越", "病例数": 61, "门店": "上海异宠" },
     { "开单人": "张迪雄", "病例数": 56, "门店": "顺德中心" },
     { "开单人": "翁治天", "病例数": 56, "门店": "上海异宠" },
-    { "开单人": "陈佩玲", "病例数": 55, "门店": "海珠重症/顺德中心" },
+    { "开单人": "陈佩玲", "病例数": 55, "门店": "顺德中心" },
     { "开单人": "黄洁明", "病例数": 54, "门店": "天河肿瘤" },
     { "开单人": "凌晓理", "病例数": 50, "门店": "天河肿瘤" },
     { "开单人": "朱华君", "病例数": 50, "门店": "天河肿瘤/海珠重症/顺德中心" },
@@ -1164,7 +1163,7 @@ doctor_store: [
     { "门店": "天河异宠", "开单人": "谢冠晖", "金额": 46760.50 },
     { "门店": "上海异宠", "开单人": "张弦", "金额": 46422.50 },
     { "门店": "海珠重症", "开单人": "叶志斌", "金额": 39705.50 },
-    { "门店": "海珠重症/顺德中心", "开单人": "陈佩玲", "金额": 37507.96 },
+    { "门店": "顺德中心", "开单人": "陈佩玲", "金额": 34557.96 },
     { "门店": "天河异宠", "开单人": "罗振宇", "金额": 33883.99 },
     { "门店": "北京异宠", "开单人": "唐国梁", "金额": 33509.00 },
     { "门店": "海珠重症", "开单人": "何家杰", "金额": 33294.89 },
@@ -1649,7 +1648,7 @@ function buildDocTable(filterStore) {
   document.getElementById('caseKpiGrid').innerHTML = `
     <div class="kpi-card blue"><div class="kpi-label">总病例数</div><div class="kpi-value">${totalCase.toLocaleString()}</div><div class="kpi-sub">电话|宠物昵称去重</div></div>
     <div class="kpi-card green"><div class="kpi-label">总平均客单价</div><div class="kpi-value">${fmt(aov)}</div><div class="kpi-sub">${fmt(totalAmt)} ÷ ${totalCase.toLocaleString()}例</div></div>
-    <div class="kpi-card purple"><div class="kpi-label">总实收额</div><div class="kpi-value">¥${fmtW(totalAmt)}</div><div class="kpi-sub">${fmt(totalAmt)}元</div></div>
+    <div class="kpi-card purple"><div class="kpi-label">总实收额</div><div class="kpi-value">${fmtW(totalAmt)}</div><div class="kpi-sub">${fmt(totalAmt)}元</div></div>
     <div class="kpi-card orange"><div class="kpi-label">数据跨度</div><div class="kpi-value">${days} 天</div><div class="kpi-sub">${DATA.date_range.start} — ${DATA.date_range.end}</div></div>
   `;
   const amtByStore = {};
@@ -1698,6 +1697,8 @@ function buildDocCaseTable(filterStore) {
       .filter(r => r.门店 === filterStore)
       .map(r => ({ 门店: r.门店, 开单人: r.开单人, 病例数: r.病例数 }));
   }
+  // 只保留有业绩目标的医生（回访账号/无目标人员不统计）
+  rows = rows.filter(r => DOCTOR_TARGETS[r.开单人]);
   rows.sort((a, b) => b.病例数 - a.病例数);
   const tbody = document.getElementById('docCaseBody');
   tbody.innerHTML = '';
