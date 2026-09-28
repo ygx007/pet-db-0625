@@ -1303,44 +1303,46 @@ function _brightness(hex) {
 
 const doughnutPercentPlugin = {
   id: 'doughnutPercent',
+  // ⚠️ 本插件不得访问 chart.options.plugins.* 取函数（Chart.js 会把插件选项里的函数
+  //    包成 scriptable 并用 context 调用，导致自定义参数失效并抛错 → 整页图表停止渲染）
+  //    整体 try/catch 兜底：标签绘制失败绝不能影响图表本身
   afterDatasetsDraw(chart) {
-    const meta = chart.getDatasetMeta(0);
-    if (!meta || !meta.data) return;
-    const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-    if (total === 0) return;
-    const cfg = (chart.options.plugins && chart.options.plugins.doughnutPercent) || {};
-    const ctx = chart.ctx;
-    meta.data.forEach((arc, i) => {
-      const val = chart.data.datasets[0].data[i];
-      const pct = val / total * 100;
-      if (pct < 4) return;
-      const angle = (arc.startAngle + arc.endAngle) / 2;
-      // 落在圆环弧带的正中间（适配不同 cutout）
-      const r = (arc.innerRadius + arc.outerRadius) / 2;
-      const x = arc.x + Math.cos(angle) * r;
-      const y = arc.y + Math.sin(angle) * r;
-      let label = pct.toFixed(0) + '%';
-      if (typeof cfg.labelFor === 'function') {
-        const custom = cfg.labelFor(i, pct);
-        if (custom === null || custom === '') return;   // 该段不标注
-        if (typeof custom === 'string') label = custom;
-      }
-      const light = _brightness(_arcBgColor(chart, i)) > 0.6;
-      ctx.save();
-      ctx.font = 'bold 12px "PingFang SC","Microsoft YaHei",sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      if (light) {
-        ctx.fillStyle = '#1f2937';                       // 浅色弧 → 深字
-        ctx.shadowColor = 'rgba(255,255,255,0.95)';      // 白色光晕，保证清晰
-      } else {
-        ctx.fillStyle = '#ffffff';                       // 深色弧 → 白字
-        ctx.shadowColor = 'rgba(0,0,0,0.45)';
-      }
-      ctx.shadowBlur = 3;
-      ctx.fillText(label, x, y);
-      ctx.restore();
-    });
+    try {
+      const meta = chart.getDatasetMeta(0);
+      if (!meta || !meta.data) return;
+      const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+      if (total === 0) return;
+      const ctx = chart.ctx;
+      meta.data.forEach((arc, i) => {
+        const val = chart.data.datasets[0].data[i];
+        const pct = val / total * 100;
+        if (pct < 4) return;
+        const angle = (arc.startAngle + arc.endAngle) / 2;
+        // 落在圆环弧带的正中间（适配不同 cutout）
+        const r = (arc.innerRadius + arc.outerRadius) / 2;
+        const x = arc.x + Math.cos(angle) * r;
+        const y = arc.y + Math.sin(angle) * r;
+        const light = _brightness(_arcBgColor(chart, i)) > 0.6;
+        ctx.save();
+        ctx.font = 'bold 12px "PingFang SC","Microsoft YaHei",sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        if (light) {
+          ctx.fillStyle = '#1f2937';                       // 浅色弧 → 深字
+          ctx.shadowColor = 'rgba(255,255,255,0.95)';      // 白色光晕，保证清晰
+        } else {
+          ctx.fillStyle = '#ffffff';                       // 深色弧 → 白字
+          ctx.shadowColor = 'rgba(0,0,0,0.45)';
+        }
+        const ov = chart._pctLabel;   // 图表实例自定义覆盖（避开 Chart.js 选项代理）
+        const label = (ov && ov[i] != null) ? ov[i] : (pct.toFixed(0) + '%');
+        ctx.shadowBlur = 3;
+        ctx.fillText(label, x, y);
+        ctx.restore();
+      });
+    } catch (e) {
+      /* 忽略：弧上标签异常不得影响图表渲染 */
+    }
   }
 };
 Chart.register(doughnutPercentPlugin);
@@ -1468,11 +1470,13 @@ function getStoreBillsMap() {
     item.appendChild(canvas);
     grid.appendChild(item);
 
-    new Chart(canvas, {
+    const chInst = new Chart(canvas, {
       type: 'doughnut',
       data: {
         labels: [rawRate > 100 ? '已完成 100%（超额 ' + (rawRate - 100).toFixed(1) + '%）' : '已完成 ' + rawRate.toFixed(1) + '%', '未达标部分 ' + (remaining > 0 ? (remaining/target*100).toFixed(1) : 0) + '%'],
         datasets: [{
+          // 达标段数据即实际/剩余：<100% 时弧上标签自动等于实际达标率；
+          // >=100% 时数据为 [目标,0]（圆环填满），再由下方 _pctLabel 覆盖成真实达标率
           data: rawRate >= 100 ? [target, 0] : [actual, remaining],
           backgroundColor: [color, '#e8ecf0'],
           borderWidth: 0,
@@ -1481,11 +1485,7 @@ function getStoreBillsMap() {
       },
       options: {
         responsive: true, maintainAspectRatio: true, cutout: '70%',
-        plugins: { legend: { display: false }, tooltip: { enabled: false },
-          // 弧上百分比：达标段显示「真实达标率」（不封顶），与中心数字一致
-          doughnutPercent: {
-            labelFor: (i, pct) => (i === 0 && rawRate >= 100) ? rawRate.toFixed(0) + '%' : pct.toFixed(0) + '%'
-          }
+        plugins: { legend: { display: false }, tooltip: { enabled: false }
           // Use the plugin to draw center text
           // We need to draw the rate at center
         }
@@ -1509,6 +1509,8 @@ function getStoreBillsMap() {
         }
       }]
     });
+    // 超额门店：弧上达标段显示真实达标率（如 113%），与中心数字一致
+    if (rawRate >= 100) chInst._pctLabel = { 0: rawRate.toFixed(0) + '%' };
   });
 })();
 
@@ -1829,6 +1831,9 @@ function buildDocCaseTable(filterStore) {
     if (input.value === pw) {
       overlay.style.display = 'none';
       main.style.display = 'block';
+      // 内容由 display:none 变为可见后，必须通知图表重新测量尺寸，否则画布会停在 0×0 变空白
+      window.dispatchEvent(new Event('resize'));
+      setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 300);
     } else {
       err.style.display = 'block';
       input.value = '';
