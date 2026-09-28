@@ -81,6 +81,11 @@
   .bullet-pct.ok { color:#16a34a; }
   .bullet-pct.warn { color:#d97706; }
   .bullet-pct.bad { color:#dc2626; }
+  /* 条内达标率数字：改用深色，避免白字压在浅色条上看不清 */
+  .bullet-fill-pct { font-size:13px; font-weight:800; white-space:nowrap; }
+  .bullet-fill-pct.ok { color:#14532d; }
+  .bullet-fill-pct.warn { color:#7c2d12; }
+  .bullet-fill-pct.bad { color:#7f1d1d; }
   .bullet-target-line { position:absolute; top:-2px; right:0; width:2px; height:calc(100% + 4px); background:#94a3b8; border-radius:1px; }
   .bullet-legend { display:flex; gap:16px; justify-content:center; font-size:12px; color:#64748b; margin-top:6px; }
   .bullet-legend span { display:inline-flex; align-items:center; gap:4px; }
@@ -941,7 +946,7 @@ function drawMonthlyCompare(){
                 }
                 return '<div class="bullet-row">'
                   + '<span class="bullet-label">' + m.label + pp + '</span>'
-                  + '<div class="bullet-track"><div class="bullet-fill ' + bulletCls(r) + '" style="width:' + Math.min(r,100) + '%"><span style="font-size:13px;font-weight:700;color:#fff;">' + r.toFixed(1) + '</span></div><div class="bullet-target-line" title="目标100%"></div></div>'
+                  + '<div class="bullet-track"><div class="bullet-fill ' + bulletCls(r) + '" style="width:' + Math.min(r,100) + '%"><span class="bullet-fill-pct ' + bulletCls(r) + '">' + r.toFixed(1) + '</span></div><div class="bullet-target-line" title="目标100%"></div></div>'
                   + '<span class="bullet-pct ' + bulletCls(r) + '">' + r.toFixed(1) + '%</span>'
                 + '</div>';
               }).join('')
@@ -1413,15 +1418,18 @@ function getStoreBillsMap() {
   const stores = DATA.store_rank.map(r => r.门店);
   const actuals = DATA.store_rank.map(r => r.总实收额);
   const targets = stores.map(s => STORE_TARGETS[s] || 0);
-  const rates = stores.map((s,i) => targets[i] > 0 ? Math.min(actuals[i] / targets[i] * 100, 100) : 0);
+  // 真实达标率（不封顶，超额照实显示）；圆环填充比例最高 100%
+  const rawRates = stores.map((s,i) => targets[i] > 0 ? actuals[i] / targets[i] * 100 : 0);
   const grid = document.getElementById('targetDonutGrid');
 
   stores.forEach((store, idx) => {
-    const rate = rates[idx];
+    const rawRate = rawRates[idx];        // 展示用：真实达标率
+    const rate = Math.min(rawRate, 100);  // 圆环填充用：最高 100%
     const actual = actuals[idx];
     const target = targets[idx];
     const remaining = target > actual ? target - actual : 0;
-    const color = rate >= 100 ? '#10b981' : rate >= 80 ? '#3b82f6' : rate >= 60 ? '#f59e0b' : '#ef4444';
+    const color = rawRate >= 100 ? '#10b981' : rawRate >= 80 ? '#3b82f6' : rawRate >= 60 ? '#f59e0b' : '#ef4444';
+    const textColor = rawRate >= 100 ? '#047857' : rawRate >= 80 ? '#1d4ed8' : rawRate >= 60 ? '#b45309' : '#b91c1c';
 
     const item = document.createElement('div');
     item.className = 'donut-item';
@@ -1434,9 +1442,9 @@ function getStoreBillsMap() {
     new Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: [rate >= 100 ? '已完成 100%' : '已完成 ' + rate.toFixed(1) + '%', '未达标部分 ' + (remaining > 0 ? (remaining/target*100).toFixed(1) : 0) + '%'],
+        labels: [rawRate > 100 ? '已完成 100%（超额 ' + (rawRate - 100).toFixed(1) + '%）' : '已完成 ' + rawRate.toFixed(1) + '%', '未达标部分 ' + (remaining > 0 ? (remaining/target*100).toFixed(1) : 0) + '%'],
         datasets: [{
-          data: rate >= 100 ? [target, 0] : [actual, remaining],
+          data: rawRate >= 100 ? [target, 0] : [actual, remaining],
           backgroundColor: [color, '#e8ecf0'],
           borderWidth: 0,
           cutout: '70%'
@@ -1456,14 +1464,14 @@ function getStoreBillsMap() {
           const centerX = (left + right) / 2;
           const centerY = (top + bottom) / 2;
           ctx.save();
-          ctx.font = 'bold 26px "PingFang SC","Microsoft YaHei",sans-serif';
-          ctx.fillStyle = color;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(rate.toFixed(0) + '%', centerX, centerY - 6);
-          ctx.font = '11px "PingFang SC","Microsoft YaHei",sans-serif';
-          ctx.fillStyle = '#64748b';
-          ctx.fillText('达标率', centerX, centerY + 20);
+          ctx.font = 'bold 26px "PingFang SC","Microsoft YaHei",sans-serif';
+          ctx.fillStyle = textColor;
+          ctx.fillText(rawRate.toFixed(0) + '%', centerX, centerY - 7);
+          ctx.font = 'bold 12px "PingFang SC","Microsoft YaHei",sans-serif';
+          ctx.fillStyle = '#334155';
+          ctx.fillText('达标率', centerX, centerY + 19);
           ctx.restore();
         }
       }]
